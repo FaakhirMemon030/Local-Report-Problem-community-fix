@@ -7,7 +7,14 @@ class AuthService {
   FirebaseFirestore get _db => FirebaseFirestore.instance;
 
   // Stream of User
-  Stream<User?> get user => _auth.authStateChanges();
+  Stream<User?> get user {
+    try {
+      return _auth.authStateChanges();
+    } catch (e) {
+      print('AuthService: Firebase not initialized: $e');
+      return const Stream.empty();
+    }
+  }
 
   // Sign in with Email and Password
   Future<UserCredential?> signInWithEmailAndPassword(String email, String password) async {
