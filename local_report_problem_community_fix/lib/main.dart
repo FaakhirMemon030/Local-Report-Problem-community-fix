@@ -14,18 +14,38 @@ import 'screens/admin/admin_dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  print("LPRCF: Starting Firebase Initialization...");
   
   bool initialized = false;
   String? error;
 
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    // Check if already initialized (can happen in certain scenarios or with certain plugins)
+    if (Firebase.apps.isEmpty) {
+      print("LPRCF: No existing apps found, initializing [DEFAULT]...");
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } else {
+      print("LPRCF: Firebase already initialized with ${Firebase.apps.length} apps.");
+    }
     initialized = true;
+    print("LPRCF: Firebase Initialized Successfully.");
   } catch (e) {
     error = e.toString();
-    print("Firebase Initialization Error: $e");
+    print("LPRCF: Firebase Initialization Error: $e");
+    
+    // Attempt fallback initialization without options if on Android/iOS
+    try {
+      if (Firebase.apps.isEmpty) {
+         print("LPRCF: Attempting fallback initialization...");
+         await Firebase.initializeApp();
+         initialized = true;
+         print("LPRCF: Fallback Initialization Successful.");
+      }
+    } catch (e2) {
+      print("LPRCF: Fallback Initialization also failed: $e2");
+    }
   }
   
   runApp(
@@ -33,10 +53,22 @@ void main() async {
     ? const LPRCFApp()
     : MaterialApp(
         home: Scaffold(
+          backgroundColor: Colors.white,
           body: Center(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text("Firebase Initialization Failed: $error", style: const TextStyle(color: Colors.red)),
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                  const SizedBox(height: 16),
+                  const Text("Firebase Setup Error", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(error ?? "Unknown Error", textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)),
+                  const SizedBox(height: 24),
+                  const Text("Please ensure you have re-run 'flutter pub get' and performed a FULL RESTART of the app.", textAlign: TextAlign.center),
+                ],
+              ),
             ),
           ),
         ),
