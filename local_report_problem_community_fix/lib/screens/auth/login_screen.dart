@@ -59,11 +59,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   validator: (val) => val!.length < 6 ? 'Password too short' : null,
                 ),
                 const SizedBox(height: 24),
-                if (authProvider.isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  ElevatedButton(
-                    onPressed: () async {
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: authProvider.isLoading ? null : () async {
                       if (_formKey.currentState!.validate()) {
                         try {
                           await authProvider.signIn(
@@ -83,8 +83,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                       }
                     },
-                    child: const Text('Login'),
+                    child: authProvider.isLoading
+                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('Login'),
                   ),
+                ),
                 const Spacer(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -74,11 +74,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 validator: (val) => val!.isEmpty ? 'Enter city' : null,
               ),
               const SizedBox(height: 32),
-              if (authProvider.isLoading)
-                const Center(child: CircularProgressIndicator())
-              else
-                ElevatedButton(
-                  onPressed: () async {
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: authProvider.isLoading ? null : () async {
                     if (_formKey.currentState!.validate()) {
                       try {
                         await authProvider.signUp(
@@ -100,8 +100,11 @@ class _SignupScreenState extends State<SignupScreen> {
                       }
                     }
                   },
-                  child: const Text('Sign Up'),
+                  child: authProvider.isLoading
+                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Sign Up'),
                 ),
+              ),
             ],
           ),
         ),
