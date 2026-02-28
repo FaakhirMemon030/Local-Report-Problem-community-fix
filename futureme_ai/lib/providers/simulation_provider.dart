@@ -7,7 +7,7 @@ import '../services/firestore_service.dart';
 import '../simulation_engine/simulation_algorithm.dart';
 
 class SimulationProvider with ChangeNotifier {
-  final FirestoreService _firestoreService = FirestoreService();
+  FirestoreService get _firestoreService => FirestoreService();
   List<GoalModel> _goals = [];
   List<DailyLogModel> _logs = [];
   List<FutureSimulationModel> _simulations = [];

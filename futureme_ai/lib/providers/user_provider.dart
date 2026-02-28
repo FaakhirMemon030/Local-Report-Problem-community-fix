@@ -4,7 +4,7 @@ import '../models/user_model.dart';
 import '../services/auth_service.dart';
 
 class UserProvider with ChangeNotifier {
-  final AuthService _authService = AuthService();
+  late final AuthService _authService;
   UserModel? _userModel;
   bool _isLoading = false;
 
@@ -12,6 +12,7 @@ class UserProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   UserProvider() {
+    _authService = AuthService();
     _init();
   }
 
