@@ -22,7 +22,7 @@ class AppTheme {
         bodyLarge: GoogleFonts.inter(color: Colors.white70),
         bodyMedium: GoogleFonts.inter(color: Colors.white60),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceDark,
         elevation: 8,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
