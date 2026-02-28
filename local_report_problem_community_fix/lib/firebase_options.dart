@@ -87,4 +87,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'lrpcf-1502a.firebasestorage.app',
     measurementId: 'G-ZE6YR6EBZX',
   );
+
 }

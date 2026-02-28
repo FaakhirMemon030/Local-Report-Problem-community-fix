@@ -29,6 +29,13 @@
             {
               "client_id": "818000946104-4v2vh7mfn4evnlhde2mra0qbi5nsq429.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "818000946104-b08kanl7lhkhepfdklfusod4in6jgkr1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.localReportProblemCommunityFix"
+              }
             }
           ]
         }
