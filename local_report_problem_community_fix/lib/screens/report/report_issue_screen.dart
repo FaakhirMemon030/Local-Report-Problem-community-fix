@@ -299,7 +299,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                     child: _imageBytes != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(15),
-                            child: Image.memory(_imageBytes!, width: double.infinity, height: double.infinity, fit: BoxFit.cover),
+                            child: Image.memory(_imageBytes!, width: double.infinity, height: double.infinity),
                           )
                         : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                             Icon(Icons.add_a_photo_outlined, size: 52, color: Colors.grey[400]),
@@ -321,31 +321,56 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                     Row(children: [
                       const Icon(Icons.location_on, color: Colors.red, size: 18),
                       const SizedBox(width: 6),
-                      Expanded(child: Text(_address, style: const TextStyle(fontSize: 13))),
-                      IconButton(
-                        onPressed: _locationLoading ? null : _detectGPSLocation, 
-                        icon: SizedBox(
-                          width: 18, height: 18,
-                          child: _locationLoading 
-                              ? const CircularProgressIndicator(strokeWidth: 2) 
-                              : const Icon(Icons.gps_fixed, size: 18),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(_address, style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          ),
                         ),
-                        color: Colors.blue,
+                      ),
+                      SizedBox(
+                        height: 48, width: 48,
+                        child: IconButton(
+                          onPressed: _locationLoading ? null : _detectGPSLocation, 
+                          icon: SizedBox(
+                            width: 18, height: 18,
+                            child: _locationLoading 
+                                ? const CircularProgressIndicator(strokeWidth: 2) 
+                                : const Icon(Icons.gps_fixed, size: 18),
+                          ),
+                          color: Colors.blue,
+                        ),
                       ),
                     ]),
                     const SizedBox(height: 10),
                     Row(children: [
-                      Expanded(child: TextField(controller: _latCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lat', filled: true, fillColor: Colors.white, border: OutlineInputBorder()))),
-                      const SizedBox(width: 8),
-                      Expanded(child: TextField(controller: _lngCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lng', filled: true, fillColor: Colors.white, border: OutlineInputBorder()))),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _locationLoading ? null : _applyManualCoords, 
+                      Expanded(
                         child: SizedBox(
-                          width: 18, height: 18,
-                          child: _locationLoading 
-                              ? const CircularProgressIndicator(strokeWidth: 2) 
-                              : const Icon(Icons.check, size: 18),
+                          height: 50,
+                          child: TextField(controller: _latCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lat', filled: true, fillColor: Colors.white, border: OutlineInputBorder())),
+                        )
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SizedBox(
+                          height: 50,
+                          child: TextField(controller: _lngCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lng', filled: true, fillColor: Colors.white, border: OutlineInputBorder())),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        height: 50, width: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
+                          onPressed: _locationLoading ? null : _applyManualCoords, 
+                          child: SizedBox(
+                            width: 18, height: 18,
+                            child: _locationLoading 
+                                ? const CircularProgressIndicator(strokeWidth: 2) 
+                                : const Icon(Icons.check, size: 18),
+                          ),
                         ),
                       ),
                     ]),
