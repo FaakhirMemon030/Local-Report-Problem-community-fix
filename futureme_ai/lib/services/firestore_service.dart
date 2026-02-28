@@ -5,7 +5,7 @@ import '../models/daily_log_model.dart';
 import '../models/simulation_model.dart';
 
 class FirestoreService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  FirebaseFirestore get _db => FirebaseFirestore.instance;
 
   // Goals
   Future<void> addGoal(GoalModel goal) async {

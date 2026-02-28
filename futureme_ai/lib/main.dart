@@ -9,21 +9,48 @@ import 'screens/dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Note: Firebase.initializeApp() requires a valid google-services.json/GoogleService-Info.plist
-  // For the sake of this generation, we assume the user will provide these.
+  String? initError;
   try {
     await Firebase.initializeApp();
   } catch (e) {
+    initError = e.toString();
     print('Firebase initialization error: $e');
   }
-  runApp(const FutureMeApp());
+  runApp(FutureMeApp(initError: initError));
 }
 
 class FutureMeApp extends StatelessWidget {
-  const FutureMeApp({super.key});
+  final String? initError;
+  const FutureMeApp({super.key, this.initError});
 
   @override
   Widget build(BuildContext context) {
+    if (initError != null) {
+      return MaterialApp(
+        theme: AppTheme.darkTheme,
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.redAccent, size: 60),
+                  const SizedBox(height: 24),
+                  const Text('FIREBASE INITIALIZATION FAILED', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Please ensure your google-services.json (Android) or GoogleService-Info.plist (iOS) is correctly placed in the project folders.\n\nError: $initError',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white60),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
