@@ -1,21 +1,39 @@
-import 'dart:typed_data';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class StorageService {
-  FirebaseStorage get _storage => FirebaseStorage.instance;
+  // TODO: Replace with your actual Cloudinary details
+  static const String cloudName = "YOUR_CLOUD_NAME"; 
+  static const String uploadPreset = "YOUR_UPLOAD_PRESET";
 
-  /// Cross-platform upload using XFile (works on web AND mobile)
+  /// Uploads image to Cloudinary using REST API (No CORS issues on Web)
   Future<String?> uploadProblemImageXFile(XFile file, String problemId) async {
     try {
       final bytes = await file.readAsBytes();
-      final ref = _storage.ref().child('problems/$problemId.jpg');
-      final metadata = SettableMetadata(contentType: 'image/jpeg');
-      final uploadTask = ref.putData(bytes, metadata);
-      final snapshot = await uploadTask;
-      return await snapshot.ref.getDownloadURL();
+      
+      final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+      
+      final request = http.MultipartRequest('POST', url)
+        ..fields['upload_preset'] = uploadPreset
+        ..files.add(http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: '$problemId.jpg',
+        ));
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final respStr = await response.stream.bytesToString();
+        final json = jsonDecode(respStr);
+        return json['secure_url']; // This is the direct image link
+      } else {
+        final error = await response.stream.bytesToString();
+        print('Cloudinary upload failed: $error');
+        return null;
+      }
     } catch (e) {
-      print('Upload error: $e');
+      print('Cloudinary upload error: $e');
       return null;
     }
   }
