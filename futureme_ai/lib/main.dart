@@ -90,8 +90,12 @@ class AuthWrapper extends StatelessWidget {
       return const LoginScreen();
     } else {
       // Initialize shared data for the user
-      Provider.of<SimulationProvider>(context, listen: false)
-          .loadUserData(userProvider.userModel!.userId);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Provider.of<SimulationProvider>(context, listen: false)
+              .loadUserData(userProvider.userModel!.userId);
+        }
+      });
       return const DashboardScreen();
     }
   }

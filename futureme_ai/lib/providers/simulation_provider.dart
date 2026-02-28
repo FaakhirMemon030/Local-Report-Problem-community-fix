@@ -12,6 +12,7 @@ class SimulationProvider with ChangeNotifier {
   List<DailyLogModel> _logs = [];
   List<FutureSimulationModel> _simulations = [];
   bool _isLoading = false;
+  String? _currentUserId;
 
   List<GoalModel> get goals => _goals;
   List<DailyLogModel> get logs => _logs;
@@ -19,6 +20,9 @@ class SimulationProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   void loadUserData(String userId) {
+    if (_currentUserId == userId) return;
+    _currentUserId = userId;
+
     _isLoading = true;
     notifyListeners();
 
@@ -38,6 +42,14 @@ class SimulationProvider with ChangeNotifier {
     });
 
     _isLoading = false;
+    notifyListeners();
+  }
+
+  void clearUserData() {
+    _currentUserId = null;
+    _goals = [];
+    _logs = [];
+    _simulations = [];
     notifyListeners();
   }
 
