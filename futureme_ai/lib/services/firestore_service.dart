@@ -31,11 +31,15 @@ class FirestoreService {
     return _db
         .collection('daily_logs')
         .where('userId', isEqualTo: userId)
-        .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => DailyLogModel.fromMap(doc.data()))
-            .toList());
+        .map((snapshot) {
+          final logs = snapshot.docs
+              .map((doc) => DailyLogModel.fromMap(doc.data()))
+              .toList();
+          // Sort locally to avoid Firebase composite index requirement
+          logs.sort((a, b) => b.date.compareTo(a.date));
+          return logs;
+        });
   }
 
   // Simulations
