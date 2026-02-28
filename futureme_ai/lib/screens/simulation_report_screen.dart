@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import '../models/simulation_model.dart';
-import '../providers/simulation_provider.dart';
-import '../providers/user_provider.dart';
 import '../utils/app_theme.dart';
 
 class SimulationReportScreen extends StatelessWidget {
@@ -37,7 +34,7 @@ class SimulationReportScreen extends StatelessWidget {
                 child: Text('CRITICAL RISK WARNINGS', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
               ),
               const SizedBox(height: 12),
-              ...simulation.riskWarnings.map((w) => _buildRiskItem(w)).toList(),
+              ...simulation.riskWarnings.map((w) => _buildRiskItem(w)),
             ],
             const SizedBox(height: 48),
             SizedBox(
@@ -63,7 +60,7 @@ class SimulationReportScreen extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 40,
-          backgroundColor: AppTheme.primaryNeon.withOpacity(0.1),
+          backgroundColor: AppTheme.primaryNeon.withValues(alpha: 0.1),
           child: const Icon(Icons.auto_awesome, color: AppTheme.primaryNeon, size: 40),
         ),
         const SizedBox(height: 16),
@@ -85,8 +82,8 @@ class SimulationReportScreen extends StatelessWidget {
       blur: 20,
       alignment: Alignment.center,
       border: 1,
-      linearGradient: LinearGradient(colors: [Colors.white.withOpacity(0.05), Colors.white.withOpacity(0.01)]),
-      borderGradient: LinearGradient(colors: [color.withOpacity(0.3), Colors.transparent]),
+      linearGradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.01)]),
+      borderGradient: LinearGradient(colors: [color.withValues(alpha: 0.3), Colors.transparent]),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

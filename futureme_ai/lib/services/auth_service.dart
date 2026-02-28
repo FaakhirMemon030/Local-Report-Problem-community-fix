@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
@@ -11,7 +12,7 @@ class AuthService {
     try {
       return _auth.authStateChanges();
     } catch (e) {
-      print('AuthService: Firebase not initialized: $e');
+      debugPrint('AuthService: Firebase not initialized: $e');
       return const Stream.empty();
     }
   }
@@ -21,7 +22,7 @@ class AuthService {
     try {
       return await _auth.signInWithEmailAndPassword(email: email, password: password);
     } catch (e) {
-      print('Error signing in: $e');
+      debugPrint('Error signing in: $e');
       return null;
     }
   }
@@ -39,7 +40,7 @@ class AuthService {
 
       return credential;
     } catch (e) {
-      print('Error registering: $e');
+      debugPrint('Error registering: $e');
       return null;
     }
   }
@@ -57,7 +58,7 @@ class AuthService {
         return UserModel.fromMap(doc.data() as Map<String, dynamic>);
       }
     } catch (e) {
-      print('Error getting user model: $e');
+      debugPrint('Error getting user model: $e');
     }
     return null;
   }
