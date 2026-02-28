@@ -115,27 +115,26 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
       );
       if (picked == null) return;
 
-      // Try to extract EXIF GPS from the image bytes
       final rawBytes = await picked.readAsBytes();
       await _tryExtractExifLocation(rawBytes);
 
-      // Crop the image (skip on web — image_cropper has limited web support)
       XFile finalFile = picked;
       if (!kIsWeb) {
+        // FIXED: Using correct parameters for image_cropper 5.0.0+
         final cropped = await ImageCropper().cropImage(
           sourcePath: picked.path,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9,
+          ],
           uiSettings: [
             AndroidUiSettings(
               toolbarTitle: 'Crop Photo',
               toolbarColor: const Color(0xFF1A73E8),
               toolbarWidgetColor: Colors.white,
               lockAspectRatio: false,
-              aspectRatioPresets: [
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9,
-              ],
             ),
             IOSUiSettings(title: 'Crop Photo'),
           ],
@@ -187,7 +186,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   }
 
   double? _parseExifCoord(String raw) {
-    // Format: [deg/1, min/1, sec/100]
     try {
       final clean = raw.replaceAll('[', '').replaceAll(']', '');
       final parts = clean.split(', ');
@@ -262,7 +260,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
       return;
     }
 
-    // Location is optional — use manual if available
     final lat = double.tryParse(_latCtrl.text);
     final lng = double.tryParse(_lngCtrl.text);
     if (lat != null && lng != null) {
@@ -329,7 +326,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Image picker ─────────────────────────────────────────
               GestureDetector(
                 onTap: _showImageSourceDialog,
                 child: AnimatedContainer(
@@ -386,7 +382,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
               const SizedBox(height: 16),
 
-              // ── Location card ─────────────────────────────────────────
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -441,7 +436,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                     const Divider(height: 1),
                     const SizedBox(height: 10),
 
-                    // Optional manual coordinates
                     const Text('Manual Coordinates (Optional)',
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
                     const SizedBox(height: 8),
@@ -494,7 +488,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
               const SizedBox(height: 16),
 
-              // ── Title ─────────────────────────────────────────────────
               TextFormField(
                 controller: _titleCtrl,
                 decoration: const InputDecoration(
@@ -506,7 +499,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
               ),
               const SizedBox(height: 14),
 
-              // ── Description ───────────────────────────────────────────
               TextFormField(
                 controller: _descCtrl,
                 maxLines: 3,
@@ -520,7 +512,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
               ),
               const SizedBox(height: 14),
 
-              // ── Category ──────────────────────────────────────────────
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 decoration: const InputDecoration(
@@ -540,7 +531,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
               const SizedBox(height: 28),
 
-              // ── Submit ────────────────────────────────────────────────
               if (_isUploading)
                 const Center(
                   child: Column(children: [
