@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId) && request.resource.data.role == resource.data.role;
+      allow update, delete: if isAdmin();
+    }
+
+    match /problems/{problemId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        (resource.data.reportedBy == request.auth.uid && resource.data.status == 'pending') ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /votes/{voteId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    match /admin_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only via Cloud Functions
+    }
+  }
+}
