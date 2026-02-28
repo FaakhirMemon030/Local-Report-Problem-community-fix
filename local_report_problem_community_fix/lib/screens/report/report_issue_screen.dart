@@ -281,8 +281,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
               // Photo Picker
               GestureDetector(
                 onTap: _showImageSourceDialog,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                child: Container(
                   height: 210, width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey[100], borderRadius: BorderRadius.circular(16),
@@ -313,7 +312,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                       const Icon(Icons.location_on, color: Colors.red, size: 18),
                       const SizedBox(width: 6),
                       Expanded(child: Text(_address, style: const TextStyle(fontSize: 13))),
-                      IconButton(onPressed: _detectGPSLocation, icon: const Icon(Icons.gps_fixed, size: 18), color: Colors.blue),
+                      IconButton(onPressed: _locationLoading ? null : _detectGPSLocation, icon: _locationLoading ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.gps_fixed, size: 18), color: Colors.blue),
                     ]),
                     const SizedBox(height: 10),
                     Row(children: [
@@ -321,7 +320,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                       const SizedBox(width: 8),
                       Expanded(child: TextField(controller: _lngCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lng', filled: true, fillColor: Colors.white, border: OutlineInputBorder()))),
                       const SizedBox(width: 8),
-                      ElevatedButton(onPressed: _applyManualCoords, child: const Icon(Icons.check)),
+                      ElevatedButton(onPressed: _locationLoading ? null : _applyManualCoords, child: _locationLoading ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.check)),
                     ]),
                   ],
                 ),
@@ -340,7 +339,17 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
               ),
               const SizedBox(height: 28),
 
-              _isUploading ? const Center(child: CircularProgressIndicator()) : SizedBox(width: double.infinity, height: 52, child: ElevatedButton.icon(onPressed: _submitReport, icon: const Icon(Icons.send), label: const Text('Submit'))),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: _isUploading ? null : _submitReport,
+                  icon: _isUploading 
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                      : const Icon(Icons.send),
+                  label: Text(_isUploading ? 'Uploading...' : 'Submit', style: const TextStyle(fontSize: 16)),
+                ),
+              ),
             ],
           ),
         ),
