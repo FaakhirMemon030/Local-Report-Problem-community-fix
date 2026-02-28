@@ -9,7 +9,7 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.primaryNeon.withOpacity(0.15),
+                color: AppTheme.primaryNeon.withValues(alpha: 0.15),
               ),
             ),
           ),
@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 250,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.secondaryNeon.withOpacity(0.15),
+                color: AppTheme.secondaryNeon.withValues(alpha: 0.15),
               ),
             ),
           ),
@@ -80,16 +80,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.white.withOpacity(0.1),
-                        Colors.white.withOpacity(0.05),
+                        Colors.white.withValues(alpha: 0.1),
+                        Colors.white.withValues(alpha: 0.05),
                       ],
                     ),
                     borderGradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryNeon.withOpacity(0.5),
-                        AppTheme.secondaryNeon.withOpacity(0.5),
+                        AppTheme.primaryNeon.withValues(alpha: 0.5),
+                        AppTheme.secondaryNeon.withValues(alpha: 0.5),
                       ],
                     ),
                     child: Padding(
@@ -144,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         _emailController.text.trim(),
                                         _passwordController.text.trim(),
                                       );
-                                      if (!success && mounted) {
+                                      if (!success && context.mounted) {
                                         setState(() => _errorMessage = 'Invalid email or password. Please try again.');
                                       }
                                     },

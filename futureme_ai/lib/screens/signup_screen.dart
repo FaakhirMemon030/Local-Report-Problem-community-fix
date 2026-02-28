@@ -9,7 +9,7 @@ class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
   @override
-  _SignupScreenState createState() => _SignupScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
 class _SignupScreenState extends State<SignupScreen> {
@@ -41,7 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.secondaryNeon.withOpacity(0.1),
+                color: AppTheme.secondaryNeon.withValues(alpha: 0.1),
               ),
             ),
           ),
@@ -61,16 +61,16 @@ class _SignupScreenState extends State<SignupScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withOpacity(0.05),
-                      Colors.white.withOpacity(0.02),
+                      Colors.white.withValues(alpha: 0.05),
+                      Colors.white.withValues(alpha: 0.02),
                     ],
                   ),
                   borderGradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.primaryNeon.withOpacity(0.5),
-                      AppTheme.secondaryNeon.withOpacity(0.5),
+                      AppTheme.primaryNeon.withValues(alpha: 0.5),
+                      AppTheme.secondaryNeon.withValues(alpha: 0.5),
                     ],
                   ),
                   child: Padding(
@@ -116,7 +116,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                       createdAt: DateTime.now(),
                                     );
                                     await userProvider.signUp(newUser, _passwordController.text);
-                                    if (mounted && userProvider.userModel != null) {
+                                    if (context.mounted && userProvider.userModel != null) {
                                       Navigator.pop(context);
                                     }
                                   },

@@ -10,7 +10,7 @@ class LogEntryScreen extends StatefulWidget {
   const LogEntryScreen({super.key});
 
   @override
-  _LogEntryScreenState createState() => _LogEntryScreenState();
+  State<LogEntryScreen> createState() => _LogEntryScreenState();
 }
 
 class _LogEntryScreenState extends State<LogEntryScreen> {
@@ -83,7 +83,9 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
                         productivityScore: (_codingHours * 2 + _learningTime * 1.5) / 3, // Simple mock score
                       );
                       await simProvider.addLog(newLog);
-                      Navigator.pop(context);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
                     }
                   },
                   child: const Text('SUBMIT DATA LOG', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
