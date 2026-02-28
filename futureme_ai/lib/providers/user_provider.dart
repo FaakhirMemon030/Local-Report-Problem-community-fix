@@ -35,12 +35,13 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<bool> signIn(String email, String password) async {
     _isLoading = true;
     notifyListeners();
-    await _authService.signInWithEmailAndPassword(email, password);
+    final result = await _authService.signInWithEmailAndPassword(email, password);
     _isLoading = false;
     notifyListeners();
+    return result != null;
   }
 
   Future<void> signUp(UserModel userModel, String password) async {
