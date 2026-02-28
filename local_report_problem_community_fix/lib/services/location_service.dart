@@ -1,6 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 
 class LocationService {
   Future<Position?> getCurrentLocation() async {
@@ -8,21 +8,15 @@ class LocationService {
     LocationPermission permission;
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return null;
-    }
+    if (!serviceEnabled) return null;
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return null;
-      }
+      if (permission == LocationPermission.denied) return null;
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      return null;
-    }
+    if (permission == LocationPermission.deniedForever) return null;
 
     return await Geolocator.getCurrentPosition();
   }
@@ -33,11 +27,9 @@ class LocationService {
         position.latitude,
         position.longitude,
       );
-      if (placemarks.isNotEmpty) {
-        return placemarks[0];
-      }
+      if (placemarks.isNotEmpty) return placemarks[0];
     } catch (e) {
-      print(e);
+      print('Geocoding error: $e');
     }
     return null;
   }
