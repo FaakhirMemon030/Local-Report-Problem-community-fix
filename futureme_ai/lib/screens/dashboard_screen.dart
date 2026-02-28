@@ -52,6 +52,8 @@ class DashboardScreen extends StatelessWidget {
             _buildProjectionChart(context, simProvider),
             const SizedBox(height: 24),
             _buildRiskPanel(context, simProvider),
+            const SizedBox(height: 24),
+            _buildRecentLogs(context, simProvider),
             const SizedBox(height: 40),
           ],
         ),
