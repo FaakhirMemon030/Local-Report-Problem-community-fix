@@ -3,8 +3,7 @@ import 'package:exif/exif.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart'; // image_cropper hata diya gaya hai
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../../models/problem_model.dart';
@@ -106,7 +105,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     });
   }
 
-  // ─── Pick image ──────────────────────────────────────────────────────────
+  // ─── Pick image (NO CROPPING) ──────────────────────────────────────────────
   Future<void> _pickImage({bool fromCamera = false}) async {
     try {
       final picked = await ImagePicker().pickImage(
@@ -115,37 +114,13 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
       );
       if (picked == null) return;
 
+      // Extract EXIF GPS from original bytes
       final rawBytes = await picked.readAsBytes();
       await _tryExtractExifLocation(rawBytes);
 
-      XFile finalFile = picked;
-      if (!kIsWeb) {
-        // FIXED: Using correct parameters for image_cropper 5.0.0+
-        final cropped = await ImageCropper().cropImage(
-          sourcePath: picked.path,
-          aspectRatioPresets: [
-            CropAspectRatioPreset.original,
-            CropAspectRatioPreset.square,
-            CropAspectRatioPreset.ratio4x3,
-            CropAspectRatioPreset.ratio16x9,
-          ],
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: 'Crop Photo',
-              toolbarColor: const Color(0xFF1A73E8),
-              toolbarWidgetColor: Colors.white,
-              lockAspectRatio: false,
-            ),
-            IOSUiSettings(title: 'Crop Photo'),
-          ],
-        );
-        if (cropped != null) finalFile = XFile(cropped.path);
-      }
-
-      final bytes = await finalFile.readAsBytes();
       setState(() {
-        _pickedFile = finalFile;
-        _imageBytes = bytes;
+        _pickedFile = picked; // Direct assignment without cropping
+        _imageBytes = rawBytes;
       });
     } catch (e) {
       if (mounted) {
@@ -216,32 +191,18 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 8),
-            Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
             if (!kIsWeb)
               ListTile(
-                leading:
-                    const Icon(Icons.camera_alt_outlined, color: Colors.blue),
+                leading: const Icon(Icons.camera_alt_outlined, color: Colors.blue),
                 title: const Text('Take Photo'),
-                subtitle: const Text('GPS from image will be auto-detected'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImage(fromCamera: true);
-                },
+                onTap: () { Navigator.pop(context); _pickImage(fromCamera: true); },
               ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined, color: Colors.blue),
               title: const Text('Choose from Gallery'),
-              subtitle: const Text('GPS from image will be auto-detected'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(fromCamera: false);
-              },
+              onTap: () { Navigator.pop(context); _pickImage(fromCamera: false); },
             ),
             const SizedBox(height: 8),
           ],
@@ -253,10 +214,8 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   // ─── Submit ───────────────────────────────────────────────────────────────
   Future<void> _submitReport() async {
     if (!_formKey.currentState!.validate()) return;
-
     if (_pickedFile == null || _imageBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('⚠️ Please add a photo')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ Please add a photo')));
       return;
     }
 
@@ -267,16 +226,13 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final problemProvider =
-        Provider.of<ProblemProvider>(context, listen: false);
+    final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
     if (authProvider.currentUserId == null) return;
 
     setState(() => _isUploading = true);
     try {
       final problemId = DateTime.now().millisecondsSinceEpoch.toString();
-      final imageUrl =
-          await _storageService.uploadProblemImageXFile(_pickedFile!, problemId);
-
+      final imageUrl = await _storageService.uploadProblemImageXFile(_pickedFile!, problemId);
       if (imageUrl == null) throw Exception('Image upload failed');
 
       final problem = ProblemModel(
@@ -301,15 +257,11 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
       await problemProvider.reportProblem(problem);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('✅ Report submitted!'),
-            backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Report submitted!'), backgroundColor: Colors.green));
         Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
@@ -318,7 +270,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Report Civic Issue')),
+      appBar: AppBar(title: const Text('Report Issue')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -326,231 +278,69 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Photo Picker
               GestureDetector(
                 onTap: _showImageSourceDialog,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  height: 210,
-                  width: double.infinity,
+                  height: 210, width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: _imageBytes != null
-                          ? const Color(0xFF1A73E8)
-                          : Colors.grey.shade300,
-                      width: _imageBytes != null ? 2 : 1,
-                    ),
+                    color: Colors.grey[100], borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: _imageBytes != null ? const Color(0xFF1A73E8) : Colors.grey.shade300, width: _imageBytes != null ? 2 : 1),
                   ),
                   child: _imageBytes != null
-                      ? Stack(children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Image.memory(_imageBytes!,
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover),
-                          ),
-                          Positioned(
-                            bottom: 8, right: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                                Icon(Icons.crop, color: Colors.white, size: 14),
-                                SizedBox(width: 4),
-                                Text('Tap to change / crop', style: TextStyle(color: Colors.white, fontSize: 11)),
-                              ]),
-                            ),
-                          ),
-                        ])
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_a_photo_outlined, size: 52, color: Colors.grey[400]),
-                            const SizedBox(height: 8),
-                            Text('Tap to add photo', style: TextStyle(color: Colors.grey[500], fontSize: 15)),
-                            const SizedBox(height: 4),
-                            Text('GPS will be auto-read from photo', style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-                          ],
-                        ),
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.memory(_imageBytes!, width: double.infinity, height: double.infinity, fit: BoxFit.cover),
+                        )
+                      : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Icon(Icons.add_a_photo_outlined, size: 52, color: Colors.grey[400]),
+                          const SizedBox(height: 8),
+                          const Text('Add Photo', style: TextStyle(fontSize: 15)),
+                        ]),
                 ),
               ),
-
               const SizedBox(height: 16),
 
+              // Location Card
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _locationFromExif ? Colors.green[50] : Colors.blue[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: _locationFromExif ? Colors.green.shade200 : Colors.blue.shade200,
-                  ),
-                ),
+                decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.blue.shade200)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
-                      Icon(
-                        _locationFromExif ? Icons.image_search : Icons.location_on,
-                        color: _locationFromExif ? Colors.green : Colors.red,
-                        size: 18,
-                      ),
+                      const Icon(Icons.location_on, color: Colors.red, size: 18),
                       const SizedBox(width: 6),
-                      Expanded(
-                        child: _locationLoading
-                            ? const Row(children: [
-                                SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)),
-                                SizedBox(width: 8),
-                                Text('Detecting location...', style: TextStyle(fontSize: 13)),
-                              ])
-                            : Text(
-                                _address,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: _location != null ? Colors.black87 : Colors.grey[600],
-                                ),
-                              ),
-                      ),
-                      TextButton.icon(
-                        onPressed: _locationLoading ? null : _detectGPSLocation,
-                        icon: const Icon(Icons.gps_fixed, size: 14),
-                        label: const Text('GPS', style: TextStyle(fontSize: 12)),
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
-                      ),
+                      Expanded(child: Text(_address, style: const TextStyle(fontSize: 13))),
+                      IconButton(onPressed: _detectGPSLocation, icon: const Icon(Icons.gps_fixed, size: 18), color: Colors.blue),
                     ]),
-
-                    if (_locationFromExif)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text('📸 Location read from photo EXIF data',
-                          style: TextStyle(fontSize: 11, color: Colors.green[700], fontStyle: FontStyle.italic)),
-                      ),
-
                     const SizedBox(height: 10),
-                    const Divider(height: 1),
-                    const SizedBox(height: 10),
-
-                    const Text('Manual Coordinates (Optional)',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
-                    const SizedBox(height: 8),
                     Row(children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _latCtrl,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                          decoration: InputDecoration(
-                            hintText: 'Latitude',
-                            hintStyle: const TextStyle(fontSize: 12),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                          ),
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ),
+                      Expanded(child: TextField(controller: _latCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lat', filled: true, fillColor: Colors.white, border: OutlineInputBorder()))),
                       const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _lngCtrl,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                          decoration: InputDecoration(
-                            hintText: 'Longitude',
-                            hintStyle: const TextStyle(fontSize: 12),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                          ),
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ),
+                      Expanded(child: TextField(controller: _lngCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lng', filled: true, fillColor: Colors.white, border: OutlineInputBorder()))),
                       const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _applyManualCoords,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(44, 44),
-                          padding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: const Icon(Icons.check, size: 18),
-                      ),
+                      ElevatedButton(onPressed: _applyManualCoords, child: const Icon(Icons.check)),
                     ]),
                   ],
                 ),
               ),
-
               const SizedBox(height: 16),
 
-              TextFormField(
-                controller: _titleCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Issue Title',
-                  hintText: 'e.g. Broken road near main bazaar',
-                  prefixIcon: Icon(Icons.title),
-                ),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
-              ),
+              // Form Fields
+              TextFormField(controller: _titleCtrl, decoration: const InputDecoration(labelText: 'Issue Title', prefixIcon: Icon(Icons.title)), validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
               const SizedBox(height: 14),
-
-              TextFormField(
-                controller: _descCtrl,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  hintText: 'Describe the issue...',
-                  prefixIcon: Icon(Icons.description_outlined),
-                  alignLabelWithHint: true,
-                ),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a description' : null,
-              ),
+              TextFormField(controller: _descCtrl, maxLines: 3, decoration: const InputDecoration(labelText: 'Description', prefixIcon: Icon(Icons.description)), validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
               const SizedBox(height: 14),
-
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  prefixIcon: Icon(Icons.category_outlined),
-                ),
-                items: [
-                  {'v': 'road', 'l': '🛣️ Road'},
-                  {'v': 'garbage', 'l': '🗑️ Garbage'},
-                  {'v': 'water', 'l': '💧 Water'},
-                  {'v': 'electricity', 'l': '⚡ Electricity'},
-                  {'v': 'drainage', 'l': '🌊 Drainage'},
-                  {'v': 'other', 'l': '📌 Other'},
-                ].map((c) => DropdownMenuItem<String>(value: c['v'], child: Text(c['l']!))).toList(),
+                items: ['road', 'garbage', 'water', 'electricity', 'other'].map((c) => DropdownMenuItem(value: c, child: Text(c.toUpperCase()))).toList(),
                 onChanged: (v) => setState(() => _selectedCategory = v!),
               ),
-
               const SizedBox(height: 28),
 
-              if (_isUploading)
-                const Center(
-                  child: Column(children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 10),
-                    Text('Uploading report...', style: TextStyle(color: Colors.grey)),
-                  ]),
-                )
-              else
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    onPressed: _submitReport,
-                    icon: const Icon(Icons.send),
-                    label: const Text('Submit Report', style: TextStyle(fontSize: 16)),
-                  ),
-                ),
-
-              const SizedBox(height: 24),
+              _isUploading ? const Center(child: CircularProgressIndicator()) : SizedBox(width: double.infinity, height: 52, child: ElevatedButton.icon(onPressed: _submitReport, icon: const Icon(Icons.send), label: const Text('Submit'))),
             ],
           ),
         ),
