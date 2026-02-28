@@ -14,15 +14,34 @@ import 'screens/admin/admin_dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  bool initialized = false;
+  String? error;
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    initialized = true;
   } catch (e) {
-    print("Firebase Error: $e");
+    error = e.toString();
+    print("Firebase Initialization Error: $e");
   }
   
-  runApp(const LPRCFApp());
+  runApp(
+    initialized 
+    ? const LPRCFApp()
+    : MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text("Firebase Initialization Failed: $error", style: const TextStyle(color: Colors.red)),
+            ),
+          ),
+        ),
+      )
+  );
 }
 
 class LPRCFApp extends StatelessWidget {
