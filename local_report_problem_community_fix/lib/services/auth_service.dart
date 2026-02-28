@@ -14,7 +14,7 @@ class AuthService {
       DocumentSnapshot doc = await _db.collection('users').doc(user.uid).get();
       if (doc.exists) {
         return UserModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-      }
+      } 
     }
     return null;
   }
