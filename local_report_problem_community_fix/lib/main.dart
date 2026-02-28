@@ -191,7 +191,15 @@ class ProfilePlaceholder extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: ElevatedButton(
-                onPressed: () => authProvider.signOut(),
+                onPressed: () async {
+                  await authProvider.signOut();
+                  if (context.mounted) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                      (route) => false,
+                    );
+                  }
+                },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 child: const Text('Logout'),
               ),

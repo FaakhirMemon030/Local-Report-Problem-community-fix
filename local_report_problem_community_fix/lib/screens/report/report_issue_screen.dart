@@ -281,22 +281,24 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
               // Photo Picker
               GestureDetector(
                 onTap: _showImageSourceDialog,
-                child: Container(
-                  height: 210, width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100], borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: _imageBytes != null ? const Color(0xFF1A73E8) : Colors.grey.shade300, width: _imageBytes != null ? 2 : 1),
+                child: SizedBox(
+                  height: 200, width: double.infinity,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100], borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: _imageBytes != null ? const Color(0xFF1A73E8) : Colors.grey.shade300, width: _imageBytes != null ? 2 : 1),
+                    ),
+                    child: _imageBytes != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image.memory(_imageBytes!, width: double.infinity, height: double.infinity, fit: BoxFit.cover),
+                          )
+                        : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Icon(Icons.add_a_photo_outlined, size: 52, color: Colors.grey[400]),
+                            const SizedBox(height: 8),
+                            const Text('Add Photo', style: TextStyle(fontSize: 15)),
+                          ]),
                   ),
-                  child: _imageBytes != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.memory(_imageBytes!, width: double.infinity, height: double.infinity, fit: BoxFit.cover),
-                        )
-                      : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Icon(Icons.add_a_photo_outlined, size: 52, color: Colors.grey[400]),
-                          const SizedBox(height: 8),
-                          const Text('Add Photo', style: TextStyle(fontSize: 15)),
-                        ]),
                 ),
               ),
               const SizedBox(height: 16),
