@@ -9,6 +9,7 @@ import 'screens/map/map_screen.dart';
 import 'screens/top_issues/top_issues_screen.dart';
 import 'screens/my_reports/my_reports_screen.dart';
 import 'screens/report/report_issue_screen.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -109,6 +110,8 @@ class ProfilePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final isAdmin = authProvider.userModel?.role == 'admin';
+
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: Center(
@@ -119,11 +122,25 @@ class ProfilePlaceholder extends StatelessWidget {
             const SizedBox(height: 16),
             Text(authProvider.userModel?.name ?? 'User', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             Text(authProvider.userModel?.email ?? '', style: const TextStyle(color: Colors.grey)),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => authProvider.signOut(),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Logout'),
+            const SizedBox(height: 24),
+            if (isAdmin)
+               Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 32),
+                 child: ElevatedButton.icon(
+                   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboardScreen())),
+                   icon: const Icon(Icons.admin_panel_settings),
+                   label: const Text('Admin Panel'),
+                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey),
+                 ),
+               ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: ElevatedButton(
+                onPressed: () => authProvider.signOut(),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Logout'),
+              ),
             ),
           ],
         ),
