@@ -5,6 +5,7 @@ import 'package:glassmorphism/glassmorphism.dart';
 import '../providers/user_provider.dart';
 import '../providers/simulation_provider.dart';
 import '../utils/app_theme.dart';
+import '../admin/admin_dashboard_screen.dart';
 import 'log_entry_screen.dart';
 import 'simulation_report_screen.dart';
 
