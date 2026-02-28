@@ -191,4 +191,83 @@ class DashboardScreen extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildRecentLogs(BuildContext context, SimulationProvider sim) {
+    if (sim.logs.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('RECENT LOGS', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 14)),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceDark,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Text('No recent logs found. Start logging today!', style: TextStyle(color: Colors.white54)),
+          ),
+        ],
+      );
+    }
+
+    final recentLogs = sim.logs.reversed.take(5).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('RECENT LOGS', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 14)),
+        const SizedBox(height: 12),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: recentLogs.length,
+          itemBuilder: (context, index) {
+            final log = recentLogs[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceDark,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${log.date.day}/${log.date.month}/${log.date.year}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryNeon)),
+                      const SizedBox(height: 4),
+                      Text('Mood: ${log.mood}', style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('Prod: ${log.productivityScore.toStringAsFixed(1)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.greenAccent)),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.code, size: 12, color: Colors.white54),
+                          const SizedBox(width: 4),
+                          Text('${log.codingHours.toStringAsFixed(1)}h', style: const TextStyle(fontSize: 12, color: Colors.white54)),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.fitness_center, size: 12, color: Colors.white54),
+                          const SizedBox(width: 4),
+                          Text('${log.workoutMinutes.toStringAsFixed(0)}m', style: const TextStyle(fontSize: 12, color: Colors.white54)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
 }
