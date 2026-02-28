@@ -7,7 +7,6 @@ import '../providers/simulation_provider.dart';
 import '../utils/app_theme.dart';
 import '../admin/admin_dashboard_screen.dart';
 import 'log_entry_screen.dart';
-import 'simulation_report_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -103,8 +102,8 @@ class DashboardScreen extends StatelessWidget {
       blur: 15,
       alignment: Alignment.center,
       border: 1,
-      linearGradient: LinearGradient(colors: [Colors.white.withOpacity(0.05), Colors.white.withOpacity(0.02)]),
-      borderGradient: LinearGradient(colors: [color.withOpacity(0.5), color.withOpacity(0.1)]),
+      linearGradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.02)]),
+      borderGradient: LinearGradient(colors: [color.withValues(alpha: 0.5), color.withValues(alpha: 0.1)]),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -149,7 +148,7 @@ class DashboardScreen extends StatelessWidget {
                   dotData: FlDotData(show: false),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: AppTheme.primaryNeon.withOpacity(0.1),
+                    color: AppTheme.primaryNeon.withValues(alpha: 0.1),
                   ),
                 ),
               ],
@@ -170,9 +169,9 @@ class DashboardScreen extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+            border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
             borderRadius: BorderRadius.circular(15),
-            color: Colors.redAccent.withOpacity(0.05),
+            color: Colors.redAccent.withValues(alpha: 0.05),
           ),
           child: Row(
             children: [
@@ -181,7 +180,7 @@ class DashboardScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Sedentary lifestyle detected! Your 5-year mobility score is dropping.',
-                  style: TextStyle(color: Colors.redAccent.withOpacity(0.8), fontSize: 13),
+                  style: TextStyle(color: Colors.redAccent.withValues(alpha: 0.8), fontSize: 13),
                 ),
               ),
             ],

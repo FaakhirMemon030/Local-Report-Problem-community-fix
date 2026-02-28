@@ -17,7 +17,7 @@ void main() async {
     );
   } catch (e) {
     initError = e.toString();
-    print('Firebase initialization error: $e');
+    debugPrint('Firebase initialization error: $e');
   }
   runApp(FutureMeApp(initError: initError));
 }
