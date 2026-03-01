@@ -103,4 +103,16 @@ class AuthService {
       await user.delete();
     }
   }
+
+  // Admin: Get all users stream
+  Stream<List<UserModel>> getAllUsers() {
+    return _db.collection('users').snapshots().map((snapshot) => snapshot.docs
+        .map((doc) => UserModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList());
+  }
+
+  // Admin: Update user ban status
+  Future<void> updateUserBanStatus(String userId, bool isBanned) async {
+    await _db.collection('users').doc(userId).update({'isBanned': isBanned});
+  }
 }

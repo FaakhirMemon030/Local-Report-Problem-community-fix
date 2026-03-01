@@ -224,7 +224,8 @@ class ProblemCard extends StatelessWidget {
     switch (status) {
       case ProblemStatus.pending: return Colors.orange;
       case ProblemStatus.approved: return const Color(0xFF3B82F6);
-      case ProblemStatus.resolved: return const Color(0xFF10B981);
+      case ProblemStatus.inProgress: return Colors.cyan;
+      case ProblemStatus.solved: return const Color(0xFF10B981);
       case ProblemStatus.rejected: return Colors.redAccent;
     }
   }

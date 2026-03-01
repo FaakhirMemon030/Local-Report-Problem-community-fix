@@ -224,7 +224,7 @@ class _MapScreenState extends State<MapScreen> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: ['all', 'pending', 'approved', 'resolved'].map((s) =>
+                children: ['all', 'pending', 'approved', 'inProgress', 'solved', 'rejected'].map((s) =>
                   ChoiceChip(
                     label: Text(s.toUpperCase()),
                     selected: _filterStatus == s,
