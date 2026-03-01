@@ -55,36 +55,37 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-          ),
+          color: Color(0xFF0F172A),
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Background Glow
-            AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) {
-                return Container(
-                  width: 300,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF3B82F6).withOpacity(0.1 + (0.1 * _animation.value)),
-                        blurRadius: 100,
-                        spreadRadius: 20,
-                      ),
-                    ],
-                  ),
-                );
-              },
+            // Background subtle glows
+            Positioned(
+              top: -100,
+              right: -100,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF3B82F6).withOpacity(0.05),
+                ),
+              ),
             ),
-
+            Positioned(
+              bottom: -100,
+              left: -100,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF10B981).withOpacity(0.05),
+                ),
+              ),
+            ),
+            
             // Content
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -94,14 +95,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   animation: _animation,
                   builder: (context, child) {
                     return Transform.scale(
-                      scale: 0.95 + (0.1 * _animation.value),
+                      scale: 0.95 + (0.05 * _animation.value),
                       child: Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(32),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withOpacity(0.1),
                             width: 1.5,
                           ),
                         ),
@@ -121,7 +122,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   style: TextStyle(
                     fontSize: 42,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 10,
+                    letterSpacing: 8,
                     color: Colors.white,
                   ),
                 ),
@@ -129,10 +130,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 Text(
                   "CIVIC REPORTER",
                   style: TextStyle(
-                    fontSize: 14,
-                    letterSpacing: 5,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 12,
+                    letterSpacing: 4,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white.withOpacity(0.4),
                   ),
                 ),
               ],
@@ -142,11 +143,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             Positioned(
               bottom: 60,
               child: SizedBox(
-                width: 150,
-                child: LinearProgressIndicator(
-                  backgroundColor: Colors.white.withOpacity(0.1),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF3B82F6)),
-                  minHeight: 2,
+                width: 120,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    backgroundColor: Colors.white.withOpacity(0.05),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF3B82F6)),
+                    minHeight: 3,
+                  ),
                 ),
               ),
             ),
