@@ -26,7 +26,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -53,6 +53,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           tabs: const [
             Tab(text: 'OVERVIEW'),
             Tab(text: 'MODERATION'),
+            Tab(text: 'ASSIGNMENTS'),
             Tab(text: 'USERS'),
             Tab(text: 'WORKERS'),
           ],
@@ -64,6 +65,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         children: [
           const _OverviewTab(),
           const _ModerationTab(),
+          const _AssignmentsTab(),
           const _UsersTab(),
           const _WorkersTab(),
         ],
@@ -1233,6 +1235,150 @@ class _WorkerCard extends StatelessWidget {
             const SizedBox(height: 16),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AssignmentsTab extends StatelessWidget {
+  const _AssignmentsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final fs = FirestoreService();
+    return StreamBuilder<List<AssignmentModel>>(
+      stream: fs.getAllAssignments(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF3B82F6)));
+        final assignments = snapshot.data ?? [];
+        if (assignments.isEmpty) {
+          return const Center(child: Text('No assignments yet', style: TextStyle(color: Colors.white24)));
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.all(24),
+          itemCount: assignments.length,
+          itemBuilder: (context, index) => _AssignmentModerationCard(assignment: assignments[index]),
+        );
+      },
+    );
+  }
+}
+
+class _AssignmentModerationCard extends StatelessWidget {
+  final AssignmentModel assignment;
+  const _AssignmentModerationCard({required this.assignment});
+
+  @override
+  Widget build(BuildContext context) {
+    final fs = FirestoreService();
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final isDone = assignment.status == AssignmentStatus.done;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: isDone ? const Color(0xFF10B981).withOpacity(0.2) : Colors.white.withOpacity(0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: (isDone ? const Color(0xFF10B981) : Colors.blue).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  assignment.status.name.toUpperCase(),
+                  style: TextStyle(
+                    color: isDone ? const Color(0xFF10B981) : Colors.blue,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                timeago.format(assignment.assignedAt),
+                style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 10),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(assignment.problemTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 4),
+          Text('Worker: ${assignment.workerName}', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
+          const SizedBox(height: 16),
+          
+          if (isDone && assignment.completionImageUrl.isNotEmpty) ...[
+            const Text('COMPLETION PHOTO:', style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.network(
+                assignment.completionImageUrl,
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (assignment.workerNotes.isNotEmpty) ...[
+              Text('Worker Notes:', style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11, fontWeight: FontWeight.bold)),
+              Text(assignment.workerNotes, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+              const SizedBox(height: 20),
+            ],
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      backgroundColor: const Color(0xFF1E293B),
+                      title: const Text('Update Problem Image?', style: TextStyle(color: Colors.white)),
+                      content: const Text('This will replace the original user photo with this worker completion photo.', style: TextStyle(color: Colors.white70)),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('CANCEL')),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+                          child: const Text('REPLACE'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true && auth.currentUserId != null) {
+                    await fs.updateProblemImage(assignment.problemId, assignment.completionImageUrl);
+                    // Also mark problem as solved if not already
+                    await fs.updateProblemStatus(assignment.problemId, ProblemStatus.solved, auth.currentUserId!);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Problem image updated and status marked as SOLVED!'), backgroundColor: Color(0xFF10B981))
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.published_with_changes_rounded),
+                label: const Text('PUBLISH AS SOLUTION IMAGE', style: TextStyle(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+            ),
+          ] else if (isDone) ...[
+             const Text('Waiting for completion details...', style: TextStyle(color: Colors.white24, fontSize: 12, fontStyle: FontStyle.italic)),
+          ],
+        ],
       ),
     );
   }
