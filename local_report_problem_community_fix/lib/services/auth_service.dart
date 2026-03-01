@@ -78,4 +78,19 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
   }
+
+  Future<void> updateName(String newName) async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      await _db.collection('users').doc(user.uid).update({'name': newName});
+    }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      await user.updatePassword(newPassword);
+      await _db.collection('users').doc(user.uid).update({'password': newPassword});
+    }
+  }
 }

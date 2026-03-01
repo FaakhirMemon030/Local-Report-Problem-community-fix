@@ -51,4 +51,24 @@ class UserModel {
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
+
+  UserModel copyWith({
+    String? name,
+    String? city,
+    String? password,
+    int? reputationScore,
+    int? totalReports,
+  }) {
+    return UserModel(
+      userId: userId,
+      name: name ?? this.name,
+      email: email,
+      role: role,
+      city: city ?? this.city,
+      password: password ?? this.password,
+      reputationScore: reputationScore ?? this.reputationScore,
+      totalReports: totalReports ?? this.totalReports,
+      createdAt: createdAt,
+    );
+  }
 }

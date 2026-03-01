@@ -12,6 +12,8 @@ import 'screens/my_reports/my_reports_screen.dart';
 import 'screens/report/report_issue_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/splash/splash_screen.dart';
+import 'dart:ui';
+import 'screens/profile/profile_screen.dart';
 
 
 void main() async {
@@ -127,54 +129,47 @@ class _MainNavigationState extends State<MainNavigation> {
     const MapScreen(),
     const TopIssuesScreen(),
     const MyReportsScreen(),
-    const ProfilePlaceholder(),
+    const ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Colors.white.withOpacity(0.05),
-              width: 1,
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                height: 70,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B).withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(0, Icons.map_outlined, Icons.map_rounded),
+                    _buildNavItem(1, Icons.trending_up_outlined, Icons.trending_up_rounded),
+                    _buildNavItem(2, Icons.assignment_outlined, Icons.assignment_rounded),
+                    _buildNavItem(3, Icons.person_outline, Icons.person_rounded),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) => setState(() => _selectedIndex = index),
-          elevation: 0,
-          backgroundColor: const Color(0xFF0F172A),
-          selectedItemColor: const Color(0xFF3B82F6),
-          unselectedItemColor: const Color(0xFF94A3B8),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontSize: 12),
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.map_outlined), activeIcon: Icon(Icons.map_rounded), label: 'Explore'),
-            BottomNavigationBarItem(icon: Icon(Icons.trending_up_outlined), activeIcon: Icon(Icons.trending_up_rounded), label: 'Trends'),
-            BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), activeIcon: Icon(Icons.assignment_rounded), label: 'Reports'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
-          ],
-        ),
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF3B82F6).withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 85),
         child: FloatingActionButton(
           onPressed: () {
             Navigator.push(
@@ -190,167 +185,40 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
     );
   }
-}
 
-class ProfilePlaceholder extends StatelessWidget {
-  const ProfilePlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final isAdmin = authProvider.userModel?.role == 'admin';
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Stack(
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon) {
+    final isSelected = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedIndex = index),
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Background subtle glows
-          Positioned(
-            top: 100,
-            right: -50,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF3B82F6).withOpacity(0.05),
-              ),
-            ),
-          ),
-          
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  // Avatar Section
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.2), width: 2),
-                      ),
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: const Color(0xFF1E293B),
-                        child: Text(
-                          (authProvider.userModel?.name ?? 'U')[0].toUpperCase(),
-                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF60A5FA)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    authProvider.userModel?.name ?? 'User',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    authProvider.userModel?.email ?? '',
-                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16),
-                  ),
-                  const SizedBox(height: 40),
-                  
-                  // Info Cards
-                  _buildProfileCard(
-                    icon: Icons.location_city_rounded,
-                    title: 'City',
-                    value: authProvider.userModel?.city ?? 'Not specified',
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  if (isAdmin) ...[
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboardScreen())),
-                        icon: const Icon(Icons.admin_panel_settings_rounded),
-                        label: const Text('ADMIN PANEL'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E293B),
-                          foregroundColor: const Color(0xFF60A5FA),
-                          side: BorderSide(color: const Color(0xFF60A5FA).withOpacity(0.3)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton.icon(
-                      onPressed: () async {
-                        await authProvider.signOut();
-                        if (context.mounted) {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (_) => const AuthWrapper()),
-                            (route) => false,
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-                      label: const Text('LOGOUT', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.redAccent.withOpacity(0.1),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileCard({required IconData icon, required String title, required String value}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
-      child: Row(
-        children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF3B82F6).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: isSelected ? const Color(0xFF3B82F6).withOpacity(0.1) : Colors.transparent,
+              shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: const Color(0xFF60A5FA), size: 24),
+            child: Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? const Color(0xFF60A5FA) : const Color(0xFF94A3B8),
+              size: 26,
+            ),
           ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
+          if (isSelected)
+            Container(
+              width: 4,
+              height: 4,
+              decoration: const BoxDecoration(
+                color: Color(0xFF60A5FA),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
+            ),
         ],
       ),
     );
   }
 }
+

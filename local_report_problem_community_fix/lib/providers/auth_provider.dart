@@ -58,4 +58,32 @@ class AuthProvider with ChangeNotifier {
     _userModel = null;
     notifyListeners();
   }
+
+  Future<void> updateName(String newName) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _authService.updateName(newName);
+      if (_userModel != null) {
+        _userModel = _userModel!.copyWith(name: newName);
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _authService.updatePassword(newPassword);
+      if (_userModel != null) {
+        _userModel = _userModel!.copyWith(password: newPassword);
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }
