@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cloudinary Unsigned Upload Test</title>
+</head>
+<body>
+    <h2>Cloudinary Unsigned Upload Debugger</h2>
+    <p>This tool will help us find the exact reason for the 401 error.</p>
+    
+    <div style="margin-bottom: 20px;">
+        <label>Cloud Name: </label>
+        <input type="text" id="cloudName" value="FaakhirMemon"><br><br>
+        <label>Upload Preset: </label>
+        <input type="text" id="preset" value="lrpcfa"><br><br>
+        <label>Select an Image: </label>
+        <input type="file" id="fileInput"><br><br>
+        <button onclick="testUpload()">Test Upload</button>
+    </div>
+
+    <div id="status" style="padding: 10px; border: 1px solid #ccc; background: #f9f9f9; white-space: pre-wrap;">
+        Status will appear here...
+    </div>
+
+    <script>
+        async function testUpload() {
+            const status = document.getElementById('status');
+            const fileInput = document.getElementById('fileInput');
+            const cloudName = document.getElementById('cloudName').value;
+            const preset = document.getElementById('preset').value;
+
+            if (!fileInput.files[0]) {
+                alert("Please select a file first!");
+                return;
+            }
+
+            status.innerHTML = "Uploading...";
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('upload_preset', preset);
+
+            try {
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    status.innerHTML = "✅ SUCCESS!\n\nImage URL: " + result.secure_url;
+                    status.style.color = "green";
+                } else {
+                    status.innerHTML = "❌ FAILED (Status: " + response.status + ")\n\nError Message: " + JSON.stringify(result, null, 2);
+                    status.style.color = "red";
+                }
+            } catch (err) {
+                status.innerHTML = "❌ ERROR: " + err.message;
+                status.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
