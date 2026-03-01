@@ -114,19 +114,6 @@ class ProblemCard extends StatelessWidget {
                           '${problem.voteCount} Votes',
                           style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
                         ),
-                        const SizedBox(width: 4),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          icon: const Icon(Icons.add_circle_outline, size: 20, color: Colors.blue),
-                          onPressed: () async {
-                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                            final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
-                            if (authProvider.currentUserId != null) {
-                              await problemProvider.voteProblem(problem.problemId, authProvider.currentUserId!);
-                            }
-                          },
-                        ),
                       ],
                     ),
                     Row(
