@@ -41,6 +41,10 @@ class WorkerProvider with ChangeNotifier {
     required WorkerCategory category,
     required String city,
     required String address,
+    String cnicPicUrl = '',
+    String electricityBillUrl = '',
+    String gasBillUrl = '',
+    String profilePicUrl = '',
   }) async {
     _isLoading = true;
     notifyListeners();
@@ -54,6 +58,10 @@ class WorkerProvider with ChangeNotifier {
         category: category,
         city: city,
         address: address,
+        cnicPicUrl: cnicPicUrl,
+        electricityBillUrl: electricityBillUrl,
+        gasBillUrl: gasBillUrl,
+        profilePicUrl: profilePicUrl,
       );
     } finally {
       _isLoading = false;
