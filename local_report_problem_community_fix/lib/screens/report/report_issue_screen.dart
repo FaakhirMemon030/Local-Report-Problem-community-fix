@@ -72,26 +72,18 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     setState(() {
       _location = latLng;
       _locationFromExif = fromExif;
+      _locationLoading = true;
     });
 
-    if (kIsWeb) {
-      // Geocoding is not supported well on Web, show a generic success message
-      setState(() => _address = 'GPS Location Captured (Lat: ${latLng.latitude.toStringAsFixed(4)}, Lng: ${latLng.longitude.toStringAsFixed(4)})');
-      return;
-    }
-
     try {
-      final placemarks = await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
-      if (placemarks.isNotEmpty && mounted) {
-        final p = placemarks.first;
-        setState(() => _address = [p.street, p.locality, p.administrativeArea]
-            .where((s) => s != null && s!.isNotEmpty)
-            .join(', '));
+      final address = await _locationService.getAddressFromLatLng(latLng);
+      if (address != null && mounted) {
+        setState(() => _address = address);
       }
-    } catch (_) {
-      if (mounted) {
-        setState(() => _address = 'GPS Coords: ${latLng.latitude.toStringAsFixed(4)}, ${latLng.longitude.toStringAsFixed(4)}');
-      }
+    } catch (e) {
+      print("LPRCF: Address detection error: $e");
+    } finally {
+      if (mounted) setState(() => _locationLoading = false);
     }
   }
 

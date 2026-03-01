@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../models/problem_model.dart';
+import '../providers/auth_provider.dart';
+import '../providers/problem_provider.dart';
 
 class ProblemCard extends StatelessWidget {
   final ProblemModel problem;
@@ -105,7 +108,7 @@ class ProblemCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.thumb_up_alt_outlined, size: 20, color: Colors.blue),
+                        const Icon(Icons.thumb_up_alt, size: 20, color: Colors.blue),
                         const SizedBox(width: 6),
                         Text(
                           '${problem.voteCount} Votes',
@@ -113,15 +116,36 @@ class ProblemCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        const Icon(Icons.trending_up, size: 18, color: Colors.orange),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Rank: ${problem.priorityScore.toStringAsFixed(1)}',
-                          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.orange),
-                        ),
-                      ],
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                        final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
+                        if (authProvider.currentUserId != null) {
+                          await problemProvider.voteProblem(problem.problemId, authProvider.currentUserId!);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Voted Successfully!'), duration: Duration(seconds: 1)),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('VOTE'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        backgroundColor: Colors.blue.shade50,
+                        foregroundColor: Colors.blue,
+                        elevation: 0,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.trending_up, size: 18, color: Colors.orange),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Rank: ${problem.priorityScore.toStringAsFixed(1)}',
+                      style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.orange),
                     ),
                   ],
                 ),
