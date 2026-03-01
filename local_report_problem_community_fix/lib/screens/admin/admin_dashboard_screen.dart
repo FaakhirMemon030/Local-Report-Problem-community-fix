@@ -381,7 +381,13 @@ class _UserCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(backgroundColor: const Color(0xFF0F172A), child: Text(user.name[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold))),
+              CircleAvatar(
+                backgroundColor: const Color(0xFF0F172A), 
+                child: Text(
+                  user.name.isNotEmpty ? user.name[0].toUpperCase() : '?', 
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -467,7 +473,7 @@ class _UserCard extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Text('${user.name.toUpperCase()}\'S REPORTS', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 16)),
+            Text('${(user.name.isEmpty ? "USER" : user.name).toUpperCase()}\'S REPORTS', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 16)),
             const SizedBox(height: 24),
             Expanded(
               child: userProblems.isEmpty 
