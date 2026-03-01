@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class StorageService {
-  static const String cloudName = "FaakhirMemon"; 
+  static const String cloudName = "ddjrzpj4r"; 
   static const String uploadPreset = "lrpcfa";
 
   /// Uploads image to Cloudinary using REST API (No CORS issues on Web)
@@ -16,7 +16,6 @@ class StorageService {
       
       final request = http.MultipartRequest('POST', url)
         ..fields['upload_preset'] = uploadPreset
-        ..fields['cloud_name'] = cloudName
         ..files.add(http.MultipartFile.fromBytes(
           'file',
           bytes,
