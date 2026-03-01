@@ -108,10 +108,60 @@ class AuthWrapper extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
     
     if (authProvider.isAuthenticated) {
+      if (authProvider.userModel?.isBanned ?? false) {
+        return const BannedScreen();
+      }
       return const MainNavigation();
     } else {
       return const LoginScreen();
     }
+  }
+}
+
+class BannedScreen extends StatelessWidget {
+  const BannedScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F172A),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.block_rounded, color: Colors.redAccent, size: 80),
+              const SizedBox(height: 24),
+              const Text(
+                'ACCOUNT SUSPENDED',
+                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Your account has been banned for violating community guidelines. If you believe this is a mistake, please contact support.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white.withOpacity(0.5), height: 1.5),
+              ),
+              const SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Provider.of<AuthProvider>(context, listen: false).signOut(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white.withOpacity(0.05),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text('LOGOUT', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
