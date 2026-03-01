@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/problem_provider.dart';
+import 'providers/worker_provider.dart';
+
 import 'theme/app_theme.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/map/map_screen.dart';
@@ -90,6 +92,7 @@ class LPRCFApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProblemProvider()),
+        ChangeNotifierProvider(create: (_) => WorkerProvider()),
       ],
       child: MaterialApp(
         title: 'LPRCF - Civic Reporter',

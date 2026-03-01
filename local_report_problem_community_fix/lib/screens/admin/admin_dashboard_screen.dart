@@ -6,8 +6,11 @@ import '../../providers/problem_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/problem_model.dart';
 import '../../models/user_model.dart';
+import '../../models/worker_model.dart';
+import '../../models/assignment_model.dart';
 import '../../services/firestore_service.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -22,7 +25,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -50,7 +53,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             Tab(text: 'OVERVIEW'),
             Tab(text: 'MODERATION'),
             Tab(text: 'USERS'),
+            Tab(text: 'WORKERS'),
           ],
+
         ),
       ),
       body: TabBarView(
@@ -59,6 +64,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           const _OverviewTab(),
           const _ModerationTab(),
           const _UsersTab(),
+          const _WorkersTab(),
         ],
       ),
     );
