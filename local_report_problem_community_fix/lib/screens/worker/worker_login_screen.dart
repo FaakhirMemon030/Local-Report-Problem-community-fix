@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/worker_provider.dart';
+import '../../models/worker_model.dart';
 import 'worker_dashboard_screen.dart';
 import 'worker_register_screen.dart';
 
