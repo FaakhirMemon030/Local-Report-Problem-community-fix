@@ -38,12 +38,26 @@ class FirestoreService {
 
   // Report a new problem
   Future<void> reportProblem(ProblemModel problem) async {
-    await _db.collection('problems').doc(problem.problemId).set(problem.toMap());
-    
-    // Increment user's total reports
-    await _db.collection('users').doc(problem.reportedBy).update({
-      'totalReports': FieldValue.increment(1),
-    });
+    try {
+      print("LPRCF: Starting reportProblem for ID: ${problem.problemId}");
+      
+      final problemData = problem.toMap();
+      print("LPRCF: Model converted to Map successfully.");
+
+      await _db.collection('problems').doc(problem.problemId).set(problemData);
+      print("LPRCF: 'problems' document set successfully.");
+      
+      // Increment user's total reports (Safer implementation for web)
+      print("LPRCF: Updating user: ${problem.reportedBy}");
+      await _db.collection('users').doc(problem.reportedBy).set({
+        'totalReports': FieldValue.increment(1),
+      }, SetOptions(merge: true));
+      
+      print("LPRCF: User report count incremented successfully.");
+    } catch (e) {
+      print("LPRCF: Firestore Error in reportProblem: $e");
+      rethrow;
+    }
   }
 
   // Vote for a problem
