@@ -464,7 +464,10 @@ class _UserCard extends StatelessWidget {
               await Provider.of<AuthProvider>(context, listen: false).adminDeleteUser(user.userId);
               if (context.mounted) Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              minimumSize: const Size(80, 36),
+            ),
             child: const Text('KICK'),
           ),
         ],
