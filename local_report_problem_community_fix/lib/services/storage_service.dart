@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 class StorageService {
   static const String cloudName = "faakhirmemon"; 
   static const String uploadPreset = "lrpcfa";
+  static const String apiKey = "STAGu0W7v0DPq8GMRnUZUUEFlJs";
 
   /// Uploads image to Cloudinary using REST API (No CORS issues on Web)
   Future<String?> uploadProblemImageXFile(XFile file, String problemId) async {
@@ -15,6 +16,7 @@ class StorageService {
       
       final request = http.MultipartRequest('POST', url)
         ..fields['upload_preset'] = uploadPreset
+        ..fields['api_key'] = apiKey
         ..files.add(http.MultipartFile.fromBytes(
           'file',
           bytes,
