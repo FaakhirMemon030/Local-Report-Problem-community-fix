@@ -14,7 +14,21 @@ class AuthService {
       DocumentSnapshot doc = await _db.collection('users').doc(user.uid).get();
       if (doc.exists) {
         return UserModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-      } 
+      } else if (user.email == 'admin@lrpcf.com') {
+        // Auto-provision admin if document is missing
+        UserModel adminModel = UserModel(
+          userId: user.uid,
+          name: 'Admin',
+          email: user.email!,
+          role: 'admin',
+          city: 'Admin City',
+          reputationScore: 100,
+          totalReports: 0,
+          createdAt: DateTime.now(),
+        );
+        await _db.collection('users').doc(user.uid).set(adminModel.toMap());
+        return adminModel;
+      }
     }
     return null;
   }
@@ -37,7 +51,7 @@ class AuthService {
           userId: user.uid,
           name: name,
           email: email,
-          role: 'user',
+          role: email == 'admin@lrpcf.com' ? 'admin' : 'user',
           city: city,
           reputationScore: 0,
           totalReports: 0,
