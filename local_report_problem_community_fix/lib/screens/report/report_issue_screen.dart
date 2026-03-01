@@ -414,7 +414,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                       value: _selectedCategory,
                       dropdownColor: const Color(0xFF1E293B),
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-                      items: ['road', 'garbage', 'water', 'electricity', 'other'].map((c) => DropdownMenuItem(
+                      items: ['road', 'garbage', 'water', 'electricity', 'drainage', 'other'].map((c) => DropdownMenuItem(
                         value: c,
                         child: Text(c.toUpperCase(), style: const TextStyle(fontSize: 14, letterSpacing: 1)),
                       )).toList(),

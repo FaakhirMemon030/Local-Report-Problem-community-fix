@@ -196,12 +196,21 @@ class FirestoreService {
               .toList();
           // Filter by category if provided
           final filtered = workerCategory != null
-              ? list.where((a) => a.problemCategory.toLowerCase() == workerCategory.toLowerCase()).toList()
+              ? list.where((a) => _isMatchingCategory(workerCategory, a.problemCategory)).toList()
               : list;
           // Sort locally to avoid requiring a composite Firestore index
           filtered.sort((a, b) => b.assignedAt.compareTo(a.assignedAt));
           return filtered;
         });
+  }
+
+  bool _isMatchingCategory(String wCatRaw, String pCatRaw) {
+    final wCat = wCatRaw.toLowerCase();
+    final pCat = pCatRaw.toLowerCase();
+    if (pCat == 'electricity' && wCat == 'electrician') return true;
+    if (pCat == 'water' && (wCat == 'plumber' || wCat == 'water')) return true;
+    if (pCat == wCat) return true;
+    return false;
   }
 
   Stream<List<AssignmentModel>> getAllAssignments() {

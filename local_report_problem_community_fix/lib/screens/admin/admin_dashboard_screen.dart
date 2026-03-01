@@ -422,18 +422,33 @@ class _ProblemModerationCard extends StatelessWidget {
                 stream: fs.getAllWorkers(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
+                  
+                  // Helper to map problem category to worker category
+                  bool isMatchingCategory(WorkerModel worker, String probCat) {
+                    final wCat = worker.category.name.toLowerCase();
+                    final pCat = probCat.toLowerCase();
+                    
+                    if (pCat == 'electricity' && wCat == 'electrician') return true;
+                    if (pCat == 'water' && (wCat == 'plumber' || wCat == 'water')) return true;
+                    if (pCat == wCat) return true;
+                    return false;
+                  }
+
                   final workers = (snapshot.data ?? [])
                       .where((w) => w.status == WorkerStatus.approved && !w.isBanned)
+                      .where((w) => isMatchingCategory(w, problem.category))
                       .toList();
 
                   if (workers.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.engineering_rounded, color: Colors.white10, size: 48),
-                          SizedBox(height: 12),
-                          Text('No approved workers available', style: TextStyle(color: Colors.white24, fontWeight: FontWeight.bold)),
+                          const Icon(Icons.engineering_rounded, color: Colors.white10, size: 48),
+                          const SizedBox(height: 12),
+                          Text('No matching ${problem.category.toUpperCase()} workers available', 
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.white24, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     );
