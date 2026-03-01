@@ -106,15 +106,36 @@ class ProblemCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.thumb_up_alt_outlined, size: 20, color: Colors.blue),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${problem.voteCount} Votes',
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () async {
+                          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                          final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
+                          if (authProvider.currentUserId != null) {
+                            await problemProvider.voteProblem(problem.problemId, authProvider.currentUserId!);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Voted Successfully!'), duration: Duration(seconds: 1)),
+                              );
+                            }
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.thumb_up_alt_outlined, size: 20, color: Colors.blue),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${problem.voteCount} Votes',
+                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
+                      ),
                     ),
                     Row(
                       children: [

@@ -64,12 +64,24 @@ class FirestoreService {
   Future<void> voteProblem(String problemId, String userId) async {
     try {
       print("LPRCF: Starting voteProblem for Problem: $problemId by User: $userId");
+      
+      // 1. Add record to 'votes' collection
       await _db.collection('votes').add({
         'problemId': problemId,
         'userId': userId,
-        'createdAt': DateTime.now(), // Using DateTime.now() for Web compatibility testing
+        'createdAt': DateTime.now(),
       });
-      print("LPRCF: Vote added successfully.");
+
+      // 2. Increment voteCount and update priorityScore on the problem document
+      // We do this directly since Cloud Functions might not be set up/running.
+      print("LPRCF: Incrementing voteCount in problems collection...");
+      await _db.collection('problems').doc(problemId).update({
+        'voteCount': FieldValue.increment(1),
+        'priorityScore': FieldValue.increment(1.0), // Simplified priority update
+        'lastUpdated': DateTime.now(),
+      });
+
+      print("LPRCF: Vote and count update successful.");
     } catch (e) {
       print("LPRCF: Firestore Error in voteProblem: $e");
       rethrow;
