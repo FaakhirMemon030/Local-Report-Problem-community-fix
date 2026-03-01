@@ -718,6 +718,32 @@ class _WorkerCard extends StatelessWidget {
               _detail(Icons.work_rounded, '${worker.jobsDone} jobs done'),
             ],
           ),
+          const SizedBox(height: 10),
+          // Documents button
+          GestureDetector(
+            onTap: () => _showWorkerDocuments(context, worker),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3B82F6).withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.2)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.folder_open_rounded, size: 14, color: Color(0xFF60A5FA)),
+                  const SizedBox(width: 6),
+                  Text(
+                    'VIEW DOCUMENTS',
+                    style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 6),
+                  _docBadge(worker),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
           // Actions
           if (isPending)
@@ -833,4 +859,182 @@ class _WorkerCard extends StatelessWidget {
       Text(text, style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 12)),
     ],
   );
+
+  Widget _docBadge(WorkerModel w) {
+    final count = [
+      w.cnicPicUrl,
+      w.electricityBillUrl,
+      w.gasBillUrl,
+      w.profilePicUrl,
+    ].where((u) => u.isNotEmpty).length;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: count > 0 ? const Color(0xFF10B981).withOpacity(0.15) : Colors.white10,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text('$count/4',
+          style: TextStyle(
+              color: count > 0 ? const Color(0xFF10B981) : Colors.white30,
+              fontSize: 10,
+              fontWeight: FontWeight.bold)),
+    );
+  }
+
+  void _showWorkerDocuments(BuildContext context, WorkerModel worker) {
+    final docs = [
+      {'label': 'Profile Photo', 'url': worker.profilePicUrl, 'icon': Icons.photo_camera_outlined},
+      {'label': 'CNIC Photo', 'url': worker.cnicPicUrl, 'icon': Icons.credit_card_outlined},
+      {'label': 'Electricity Bill', 'url': worker.electricityBillUrl, 'icon': Icons.bolt_outlined},
+      {'label': 'Gas Bill', 'url': worker.gasBillUrl, 'icon': Icons.local_fire_department_outlined},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF0F172A),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, scrollCtrl) => Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4,
+                decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                children: [
+                  const Icon(Icons.folder_open_rounded, color: Color(0xFF60A5FA), size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      '${worker.name.toUpperCase()} — DOCUMENTS',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900,
+                          letterSpacing: 1, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.separated(
+                controller: scrollCtrl,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                itemCount: docs.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 16),
+                itemBuilder: (_, i) {
+                  final doc = docs[i];
+                  final url = doc['url'] as String;
+                  final icon = doc['icon'] as IconData;
+                  final label = doc['label'] as String;
+                  final hasDoc = url.isNotEmpty;
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                          color: hasDoc
+                              ? const Color(0xFF10B981).withOpacity(0.2)
+                              : Colors.white.withOpacity(0.05)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                          child: Row(
+                            children: [
+                              Icon(icon,
+                                  size: 16,
+                                  color: hasDoc
+                                      ? const Color(0xFF10B981)
+                                      : Colors.white30),
+                              const SizedBox(width: 8),
+                              Text(label,
+                                  style: TextStyle(
+                                      color: hasDoc ? Colors.white : Colors.white30,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13)),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: hasDoc
+                                      ? const Color(0xFF10B981).withOpacity(0.1)
+                                      : Colors.orange.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  hasDoc ? 'UPLOADED' : 'MISSING',
+                                  style: TextStyle(
+                                      color: hasDoc
+                                          ? const Color(0xFF10B981)
+                                          : Colors.orange,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (hasDoc)
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                                bottom: Radius.circular(16)),
+                            child: Image.network(
+                              url,
+                              width: double.infinity,
+                              height: 200,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (ctx, child, progress) =>
+                                  progress == null
+                                      ? child
+                                      : Container(
+                                          height: 200,
+                                          color: Colors.white.withOpacity(0.03),
+                                          child: const Center(
+                                              child: CircularProgressIndicator(
+                                                  color: Color(0xFF10B981),
+                                                  strokeWidth: 2))),
+                              errorBuilder: (_, __, ___) => Container(
+                                height: 80,
+                                color: Colors.white.withOpacity(0.03),
+                                child: const Center(
+                                    child: Icon(Icons.broken_image,
+                                        color: Colors.white24)),
+                              ),
+                            ),
+                          )
+                        else
+                          Container(
+                            height: 60,
+                            decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.vertical(
+                                    bottom: Radius.circular(16))),
+                            child: const Center(
+                              child: Text('No document uploaded',
+                                  style: TextStyle(
+                                      color: Colors.white24, fontSize: 12)),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
 }
