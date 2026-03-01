@@ -6,6 +6,7 @@ class UserModel {
   final String email;
   final String role;
   final String city;
+  final String? password; // Storing password as requested
   final int reputationScore;
   final int totalReports;
   final DateTime createdAt;
@@ -16,6 +17,7 @@ class UserModel {
     required this.email,
     required this.role,
     required this.city,
+    this.password,
     required this.reputationScore,
     required this.totalReports,
     required this.createdAt,
@@ -28,6 +30,7 @@ class UserModel {
       email: data['email'] ?? '',
       role: data['role'] ?? 'user',
       city: data['city'] ?? '',
+      password: data['password'],
       reputationScore: data['reputationScore'] ?? 0,
       totalReports: data['totalReports'] ?? 0,
       createdAt: data['createdAt'] != null 
@@ -42,6 +45,7 @@ class UserModel {
       'email': email,
       'role': role,
       'city': city,
+      'password': password,
       'reputationScore': reputationScore,
       'totalReports': totalReports,
       'createdAt': Timestamp.fromDate(createdAt),
