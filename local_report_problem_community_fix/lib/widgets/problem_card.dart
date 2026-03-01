@@ -11,6 +11,7 @@ class ProblemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("LPRCF: Rendering ProblemCard for '${problem.title}' (ID: ${problem.problemId}) - Votes: ${problem.voteCount}");
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 16),

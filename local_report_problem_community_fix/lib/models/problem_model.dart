@@ -40,30 +40,35 @@ class ProblemModel {
   });
 
   factory ProblemModel.fromMap(Map<String, dynamic> data, String id) {
-    return ProblemModel(
-      problemId: id,
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
-      category: data['category'] ?? '',
-      latitude: (data['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (data['longitude'] as num?)?.toDouble() ?? 0.0,
-      address: data['address'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
-      reportedBy: data['reportedBy'] ?? '',
-      voteCount: data['voteCount'] ?? 0,
-      priorityScore: (data['priorityScore'] as num?)?.toDouble() ?? 0.0,
-      status: data['status'] != null 
-          ? ProblemStatus.values.byName(data['status']) 
-          : ProblemStatus.pending,
-      createdAt: data['createdAt'] != null 
-          ? (data['createdAt'] as Timestamp).toDate() 
-          : DateTime.now(),
-      lastUpdated: data['lastUpdated'] != null 
-          ? (data['lastUpdated'] as Timestamp).toDate() 
-          : DateTime.now(),
-      city: data['city'] ?? '',
-      district: data['district'] ?? '',
-    );
+    try {
+      return ProblemModel(
+        problemId: id,
+        title: data['title'] ?? '',
+        description: data['description'] ?? '',
+        category: data['category'] ?? '',
+        latitude: (data['latitude'] as num?)?.toDouble() ?? 0.0,
+        longitude: (data['longitude'] as num?)?.toDouble() ?? 0.0,
+        address: data['address'] ?? '',
+        imageUrl: data['imageUrl'] ?? '',
+        reportedBy: data['reportedBy'] ?? '',
+        voteCount: (data['voteCount'] as num?)?.toInt() ?? 0,
+        priorityScore: (data['priorityScore'] as num?)?.toDouble() ?? 0.0,
+        status: data['status'] != null 
+            ? ProblemStatus.values.byName(data['status']) 
+            : ProblemStatus.pending,
+        createdAt: data['createdAt'] != null 
+            ? (data['createdAt'] as Timestamp).toDate() 
+            : DateTime.now(),
+        lastUpdated: data['lastUpdated'] != null 
+            ? (data['lastUpdated'] as Timestamp).toDate() 
+            : DateTime.now(),
+        city: data['city'] ?? '',
+        district: data['district'] ?? '',
+      );
+    } catch (e) {
+      print("LPRCF: Error parsing ProblemModel ($id): $e");
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toMap() {
