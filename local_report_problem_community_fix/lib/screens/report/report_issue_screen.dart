@@ -22,8 +22,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
-  final _latCtrl = TextEditingController();
-  final _lngCtrl = TextEditingController();
 
   String _selectedCategory = 'road';
 
@@ -73,10 +71,15 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   Future<void> _applyLatLng(LatLng latLng, {bool fromExif = false}) async {
     setState(() {
       _location = latLng;
-      _latCtrl.text = latLng.latitude.toStringAsFixed(6);
-      _lngCtrl.text = latLng.longitude.toStringAsFixed(6);
       _locationFromExif = fromExif;
     });
+
+    if (kIsWeb) {
+      // Geocoding is not supported well on Web, show a generic success message
+      setState(() => _address = 'GPS Location Captured (Lat: ${latLng.latitude.toStringAsFixed(4)}, Lng: ${latLng.longitude.toStringAsFixed(4)})');
+      return;
+    }
+
     try {
       final placemarks = await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
       if (placemarks.isNotEmpty && mounted) {
@@ -85,25 +88,14 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
             .where((s) => s != null && s!.isNotEmpty)
             .join(', '));
       }
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        setState(() => _address = 'GPS Coords: ${latLng.latitude.toStringAsFixed(4)}, ${latLng.longitude.toStringAsFixed(4)}');
+      }
+    }
   }
 
-  // ─── Apply manual coords ─────────────────────────────────────────────────
-  void _applyManualCoords() {
-    final lat = double.tryParse(_latCtrl.text);
-    final lng = double.tryParse(_lngCtrl.text);
-    if (lat == null || lng == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter valid latitude and longitude')),
-      );
-      return;
-    }
-    FocusScope.of(context).unfocus();
-    setState(() => _locationLoading = true);
-    _applyLatLng(LatLng(lat, lng)).then((_) {
-      if (mounted) setState(() => _locationLoading = false);
-    });
-  }
+
 
   // ─── Pick image (NO CROPPING) ──────────────────────────────────────────────
   Future<void> _pickImage({bool fromCamera = false}) async {
@@ -227,11 +219,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
       return;
     }
 
-    final lat = double.tryParse(_latCtrl.text);
-    final lng = double.tryParse(_lngCtrl.text);
-    if (lat != null && lng != null) {
-      _location = LatLng(lat, lng);
-    }
+
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
@@ -344,36 +332,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                         ),
                       ),
                     ]),
-                    const SizedBox(height: 10),
-                    Row(children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 50,
-                          child: TextField(controller: _latCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lat', filled: true, fillColor: Colors.white, border: OutlineInputBorder())),
-                        )
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: SizedBox(
-                          height: 50,
-                          child: TextField(controller: _lngCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Lng', filled: true, fillColor: Colors.white, border: OutlineInputBorder())),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        height: 50, width: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
-                          onPressed: _locationLoading ? null : _applyManualCoords, 
-                          child: SizedBox(
-                            width: 18, height: 18,
-                            child: _locationLoading 
-                                ? const CircularProgressIndicator(strokeWidth: 2) 
-                                : const Icon(Icons.check, size: 18),
-                          ),
-                        ),
-                      ),
-                    ]),
+
                   ],
                 ),
               ),

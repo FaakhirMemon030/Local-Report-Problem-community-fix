@@ -62,14 +62,18 @@ class FirestoreService {
 
   // Vote for a problem
   Future<void> voteProblem(String problemId, String userId) async {
-    // This will be handled by Cloud Functions securely, 
-    // but we can add a record to the 'votes' collection.
-    // The Cloud Function will trigger on this creation.
-    await _db.collection('votes').add({
-      'problemId': problemId,
-      'userId': userId,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      print("LPRCF: Starting voteProblem for Problem: $problemId by User: $userId");
+      await _db.collection('votes').add({
+        'problemId': problemId,
+        'userId': userId,
+        'createdAt': DateTime.now(), // Using DateTime.now() for Web compatibility testing
+      });
+      print("LPRCF: Vote added successfully.");
+    } catch (e) {
+      print("LPRCF: Firestore Error in voteProblem: $e");
+      rethrow;
+    }
   }
 
   // Admin: Update problem status
