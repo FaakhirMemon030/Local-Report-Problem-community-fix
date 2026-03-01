@@ -3,9 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class StorageService {
-  // TODO: Replace with your actual Cloudinary details
-  static const String cloudName = "YOUR_CLOUD_NAME"; 
-  static const String uploadPreset = "YOUR_UPLOAD_PRESET";
+  static const String cloudName = "faakhirmemon"; 
+  static const String uploadPreset = "lrpcfa";
 
   /// Uploads image to Cloudinary using REST API (No CORS issues on Web)
   Future<String?> uploadProblemImageXFile(XFile file, String problemId) async {
@@ -23,13 +22,13 @@ class StorageService {
         ));
 
       final response = await request.send();
+      final respStr = await response.stream.bytesToString(); // Pehle response read karlein
+      
       if (response.statusCode == 200) {
-        final respStr = await response.stream.bytesToString();
         final json = jsonDecode(respStr);
-        return json['secure_url']; // This is the direct image link
+        return json['secure_url']; 
       } else {
-        final error = await response.stream.bytesToString();
-        print('Cloudinary upload failed: $error');
+        print('Cloudinary Error ($uploadPreset): $respStr'); // Is se exact error pata chalega
         return null;
       }
     } catch (e) {
