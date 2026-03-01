@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../providers/auth_provider.dart';
 import '../../main.dart';
 import '../../screens/admin/admin_dashboard_screen.dart';
@@ -58,34 +55,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error updating profile: $e'), backgroundColor: Colors.red),
         );
-      }
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
-    
-    if (pickedFile != null) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      try {
-        if (kIsWeb) {
-          final bytes = await pickedFile.readAsBytes();
-          await authProvider.updateProfileImage(bytes);
-        } else {
-          await authProvider.updateProfileImage(File(pickedFile.path));
-        }
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile image updated!'), backgroundColor: Colors.green),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error uploading image: $e'), backgroundColor: Colors.red),
-          );
-        }
       }
     }
   }
@@ -149,45 +118,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 10),
                   // Avatar Section
                   Center(
-                    child: Stack(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.2), width: 2),
-                          ),
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundColor: const Color(0xFF1E293B),
-                            backgroundImage: user?.profileImageUrl != null 
-                              ? NetworkImage(user!.profileImageUrl!) 
-                              : null,
-                            child: user?.profileImageUrl == null
-                              ? Text(
-                                  (user?.name ?? 'U')[0].toUpperCase(),
-                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF60A5FA)),
-                                )
-                              : null,
-                          ),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.2), width: 2),
+                      ),
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: const Color(0xFF1E293B),
+                        child: Text(
+                          (user?.name ?? 'U')[0].toUpperCase(),
+                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF60A5FA)),
                         ),
-                        if (_isEditing)
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: _pickImage,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF3B82F6),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.camera_alt_rounded, size: 20, color: Colors.white),
-                              ),
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
