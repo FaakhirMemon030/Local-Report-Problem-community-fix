@@ -11,6 +11,7 @@ import 'screens/top_issues/top_issues_screen.dart';
 import 'screens/my_reports/my_reports_screen.dart';
 import 'screens/report/report_issue_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
+import 'screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -90,7 +91,7 @@ class LPRCFApp extends StatelessWidget {
         title: 'LPRCF - Civic Reporter',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const AuthWrapper(),
+        home: const SplashScreen(),
       ),
     );
   }
