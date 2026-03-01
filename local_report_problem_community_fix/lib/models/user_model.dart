@@ -25,20 +25,21 @@ class UserModel {
     this.isBanned = false,
   });
 
-  factory UserModel.fromMap(Map<String, dynamic> data, String id) {
+  factory UserModel.fromMap(Map<String, dynamic>? data, String id) {
+    final Map<String, dynamic> map = data ?? {};
     return UserModel(
       userId: id,
-      name: data['name'] ?? '',
-      email: data['email'] ?? '',
-      role: data['role'] ?? 'user',
-      city: data['city'] ?? '',
-      password: data['password'],
-      reputationScore: data['reputationScore'] ?? 0,
-      totalReports: data['totalReports'] ?? 0,
-      createdAt: data['createdAt'] != null 
-          ? (data['createdAt'] as Timestamp).toDate() 
+      name: map['name'] ?? 'User',
+      email: map['email'] ?? '',
+      role: map['role'] ?? 'user',
+      city: map['city'] ?? '',
+      password: map['password'],
+      reputationScore: map['reputationScore'] ?? 0,
+      totalReports: map['totalReports'] ?? 0,
+      createdAt: map['createdAt'] != null && map['createdAt'] is Timestamp 
+          ? (map['createdAt'] as Timestamp).toDate() 
           : DateTime.now(),
-      isBanned: data['isBanned'] ?? false,
+      isBanned: map['isBanned'] ?? false,
     );
   }
 

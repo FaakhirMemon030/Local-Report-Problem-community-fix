@@ -33,7 +33,7 @@ class FirestoreService {
     }
 
     return query.snapshots().map((snapshot) => snapshot.docs
-        .map((doc) => ProblemModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .map((doc) => ProblemModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
         .toList());
   }
 
@@ -121,7 +121,7 @@ class FirestoreService {
   // Admin: Get all users
   Stream<List<UserModel>> getAllUsers() {
     return _db.collection('users').snapshots().map((snapshot) => snapshot.docs
-        .map((doc) => UserModel.fromMap(doc.data(), doc.id))
+        .map((doc) => UserModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
         .toList());
   }
 

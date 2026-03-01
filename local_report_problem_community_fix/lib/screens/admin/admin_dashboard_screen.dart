@@ -148,7 +148,7 @@ class _UsersTab extends StatelessWidget {
       stream: authProvider.allUsers,
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF3B82F6)));
-        final users = snapshot.data!;
+        final users = snapshot.data ?? [];
         
         return ListView.builder(
           padding: const EdgeInsets.all(24),
@@ -303,7 +303,11 @@ class _ProblemModerationCard extends StatelessWidget {
                         label: Text(status.name.toUpperCase(), style: const TextStyle(fontSize: 10)),
                         padding: EdgeInsets.zero,
                         backgroundColor: problem.status == status ? const Color(0xFF3B82F6) : Colors.white.withOpacity(0.05),
-                        onPressed: () => fs.updateProblemStatus(problem.problemId, status, auth.currentUserId!),
+                        onPressed: () {
+                          if (auth.currentUserId != null) {
+                            fs.updateProblemStatus(problem.problemId, status, auth.currentUserId!);
+                          }
+                        },
                       ),
                     )).toList(),
                   ),
@@ -329,7 +333,9 @@ class _ProblemModerationCard extends StatelessWidget {
             onPressed: () async {
               final pp = Provider.of<ProblemProvider>(context, listen: false);
               final auth = Provider.of<AuthProvider>(context, listen: false);
-              await pp.deleteProblem(problemId, auth.currentUserId!);
+              if (auth.currentUserId != null) {
+                await pp.deleteProblem(problemId, auth.currentUserId!);
+              }
               if (context.mounted) Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
@@ -478,7 +484,9 @@ class _UserCard extends StatelessWidget {
                           onPressed: () async {
                             final pp = Provider.of<ProblemProvider>(context, listen: false);
                             final auth = Provider.of<AuthProvider>(context, listen: false);
-                            await pp.deleteProblem(p.problemId, auth.currentUserId!);
+                            if (auth.currentUserId != null) {
+                              await pp.deleteProblem(p.problemId, auth.currentUserId!);
+                            }
                             if (context.mounted) Navigator.pop(context); // Close sheet
                           },
                           icon: const Icon(Icons.delete_sweep_rounded, color: Colors.redAccent, size: 18),
