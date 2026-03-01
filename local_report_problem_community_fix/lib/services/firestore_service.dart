@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/problem_model.dart';
+import '../models/user_model.dart';
 
 class FirestoreService {
   FirebaseFirestore get _db => FirebaseFirestore.instance;
@@ -102,5 +103,17 @@ class FirestoreService {
       'actionBy': adminId,
       'timestamp': FieldValue.serverTimestamp(),
     });
+  }
+
+  // Admin: Get all users
+  Stream<List<UserModel>> getAllUsers() {
+    return _db.collection('users').snapshots().map((snapshot) => snapshot.docs
+        .map((doc) => UserModel.fromMap(doc.data(), doc.id))
+        .toList());
+  }
+
+  // Admin: Update user ban status
+  Future<void> updateUserBanStatus(String userId, bool isBanned) async {
+    await _db.collection('users').doc(userId).update({'isBanned': isBanned});
   }
 }

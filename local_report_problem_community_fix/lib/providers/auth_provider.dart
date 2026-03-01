@@ -98,4 +98,13 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Admin: Get all users stream
+  Stream<List<UserModel>> get allUsers => _authService.getAllUsers();
+
+  // Admin: Toggle ban status
+  Future<void> toggleUserBan(String userId, bool isBanned) async {
+    await _authService.updateUserBanStatus(userId, isBanned);
+    notifyListeners();
+  }
 }
