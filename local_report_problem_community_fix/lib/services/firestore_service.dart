@@ -240,4 +240,14 @@ class FirestoreService {
         .doc(workerId)
         .update({'jobsDone': FieldValue.increment(1)});
   }
+
+  Future<void> deleteAssignment(String assignmentId, String adminId) async {
+    await _db.collection('assignments').doc(assignmentId).delete();
+    await _db.collection('admin_logs').add({
+      'assignmentId': assignmentId,
+      'actionType': 'delete_assignment',
+      'actionBy': adminId,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
 }
