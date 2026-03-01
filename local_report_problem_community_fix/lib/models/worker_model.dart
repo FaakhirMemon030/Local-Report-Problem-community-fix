@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum WorkerCategory { electrician, plumber, road, drainage, garbage, water, other }
+enum WorkerCategory { road, garbage, water, electricity, drainage, other, election }
 enum WorkerStatus { pending, approved, rejected }
 
 class WorkerModel {

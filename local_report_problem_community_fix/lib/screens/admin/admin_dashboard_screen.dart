@@ -427,13 +427,7 @@ class _ProblemModerationCard extends StatelessWidget {
                   
                   // Helper to map problem category to worker category
                   bool isMatchingCategory(WorkerModel worker, String probCat) {
-                    final wCat = worker.category.name.toLowerCase();
-                    final pCat = probCat.toLowerCase();
-                    
-                    if (pCat == 'electricity' && wCat == 'electrician') return true;
-                    if (pCat == 'water' && (wCat == 'plumber' || wCat == 'water')) return true;
-                    if (pCat == wCat) return true;
-                    return false;
+                    return worker.category.name.toLowerCase() == probCat.toLowerCase();
                   }
 
                   final workers = (snapshot.data ?? [])
@@ -546,11 +540,12 @@ class _ProblemModerationCard extends StatelessWidget {
 
   IconData _workerCatIcon(WorkerCategory cat) {
     switch (cat) {
-      case WorkerCategory.electrician: return Icons.bolt_rounded;
-      case WorkerCategory.plumber: return Icons.water_drop_rounded;
       case WorkerCategory.road: return Icons.construction_rounded;
-      case WorkerCategory.drainage: return Icons.waves_rounded;
       case WorkerCategory.garbage: return Icons.delete_sweep_rounded;
+      case WorkerCategory.water: return Icons.water_drop_rounded;
+      case WorkerCategory.electricity: return Icons.bolt_rounded;
+      case WorkerCategory.drainage: return Icons.waves_rounded;
+      case WorkerCategory.other: return Icons.engineering_rounded;
       case WorkerCategory.election: return Icons.how_to_vote_rounded;
     }
   }
@@ -847,11 +842,12 @@ class _WorkerCard extends StatelessWidget {
 
   IconData _catIcon(WorkerCategory cat) {
     switch (cat) {
-      case WorkerCategory.electrician: return Icons.bolt_rounded;
-      case WorkerCategory.plumber: return Icons.water_drop_rounded;
       case WorkerCategory.road: return Icons.construction_rounded;
-      case WorkerCategory.drainage: return Icons.waves_rounded;
       case WorkerCategory.garbage: return Icons.delete_sweep_rounded;
+      case WorkerCategory.water: return Icons.water_drop_rounded;
+      case WorkerCategory.electricity: return Icons.bolt_rounded;
+      case WorkerCategory.drainage: return Icons.waves_rounded;
+      case WorkerCategory.other: return Icons.engineering_rounded;
       case WorkerCategory.election: return Icons.how_to_vote_rounded;
     }
   }

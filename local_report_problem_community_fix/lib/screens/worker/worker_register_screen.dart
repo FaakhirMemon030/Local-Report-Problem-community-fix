@@ -390,11 +390,12 @@ class _WorkerRegisterScreenState extends State<WorkerRegisterScreen> {
 
   Widget _buildCategorySelector() {
     final cats = {
-      WorkerCategory.electrician: ('Electrician', Icons.bolt_rounded),
-      WorkerCategory.plumber: ('Plumber', Icons.water_drop_rounded),
       WorkerCategory.road: ('Road Worker', Icons.construction_rounded),
-      WorkerCategory.drainage: ('Drainage', Icons.waves_rounded),
-      WorkerCategory.garbage: ('Garbage', Icons.delete_sweep_rounded),
+      WorkerCategory.garbage: ('Garbage Collector', Icons.delete_sweep_rounded),
+      WorkerCategory.water: ('Water / Plumber', Icons.water_drop_rounded),
+      WorkerCategory.electricity: ('Electrician', Icons.bolt_rounded),
+      WorkerCategory.drainage: ('Drainage Worker', Icons.waves_rounded),
+      WorkerCategory.other: ('Other Services', Icons.engineering_rounded),
       WorkerCategory.election: ('Election Staff', Icons.how_to_vote_rounded),
     };
     return Wrap(

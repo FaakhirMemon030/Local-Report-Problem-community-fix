@@ -205,12 +205,7 @@ class FirestoreService {
   }
 
   bool _isMatchingCategory(String wCatRaw, String pCatRaw) {
-    final wCat = wCatRaw.toLowerCase();
-    final pCat = pCatRaw.toLowerCase();
-    if (pCat == 'electricity' && wCat == 'electrician') return true;
-    if (pCat == 'water' && (wCat == 'plumber' || wCat == 'water')) return true;
-    if (pCat == wCat) return true;
-    return false;
+    return wCatRaw.toLowerCase() == pCatRaw.toLowerCase();
   }
 
   Stream<List<AssignmentModel>> getAllAssignments() {
