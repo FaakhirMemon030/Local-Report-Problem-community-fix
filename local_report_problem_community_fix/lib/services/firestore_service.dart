@@ -162,11 +162,15 @@ class FirestoreService {
   Stream<List<AssignmentModel>> getAssignmentsForWorker(String workerId) {
     return _db.collection('assignments')
         .where('workerId', isEqualTo: workerId)
-        .orderBy('assignedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((doc) => AssignmentModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
-            .toList());
+        .map((snap) {
+          final list = snap.docs
+              .map((doc) => AssignmentModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
+              .toList();
+          // Sort locally to avoid requiring a composite Firestore index
+          list.sort((a, b) => b.assignedAt.compareTo(a.assignedAt));
+          return list;
+        });
   }
 
   Stream<List<AssignmentModel>> getAllAssignments() {
