@@ -42,8 +42,8 @@ class WorkerModel {
 
   factory WorkerModel.fromMap(Map<String, dynamic>? data, String id) {
     final map = data ?? {};
-    WorkerCategory cat = WorkerCategory.electrician;
-    try { cat = WorkerCategory.values.byName(map['category'] ?? 'electrician'); } catch (_) {}
+    WorkerCategory cat = WorkerCategory.electricity;
+    try { cat = WorkerCategory.values.byName(map['category'] ?? 'electricity'); } catch (_) {}
     WorkerStatus st = WorkerStatus.pending;
     try { st = WorkerStatus.values.byName(map['status'] ?? 'pending'); } catch (_) {}
 

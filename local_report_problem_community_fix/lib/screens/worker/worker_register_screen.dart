@@ -21,7 +21,7 @@ class _WorkerRegisterScreenState extends State<WorkerRegisterScreen> {
   final _cnicCtrl = TextEditingController();
   final _cityCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
-  WorkerCategory _category = WorkerCategory.electrician;
+  WorkerCategory _category = WorkerCategory.electricity;
   bool _submitted = false;
   String? _error;
 
