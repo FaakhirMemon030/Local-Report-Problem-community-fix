@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../main.dart';
+import '../../screens/admin/admin_dashboard_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -175,13 +177,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 48),
                   
                   if (!_isEditing) ...[
+                    if (user?.role == 'admin') ...[
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboardScreen())),
+                          icon: const Icon(Icons.admin_panel_settings_rounded),
+                          label: const Text('ADMIN PANEL'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1E293B),
+                            foregroundColor: const Color(0xFF60A5FA),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            side: BorderSide(color: const Color(0xFF60A5FA).withOpacity(0.3)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     SizedBox(
                       width: double.infinity,
                       child: TextButton.icon(
                         onPressed: () async {
                           await authProvider.signOut();
                           if (mounted) {
-                            Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                              (route) => false,
+                            );
                           }
                         },
                         icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
