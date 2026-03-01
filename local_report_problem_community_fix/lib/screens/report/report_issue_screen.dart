@@ -200,7 +200,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
         longitude: _location?.longitude ?? 0.0,
         address: _location != null ? _address : 'Location not provided',
         imageUrl: imageUrl,
-        reportedBy: authProvider.currentUserId!,
+        reportedBy: authProvider.currentUserId ?? 'Guest',
         voteCount: 0,
         priorityScore: 0.0,
         status: ProblemStatus.pending,
