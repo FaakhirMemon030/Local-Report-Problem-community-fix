@@ -16,6 +16,7 @@ class StorageService {
       
       final request = http.MultipartRequest('POST', url)
         ..fields['upload_preset'] = uploadPreset
+        ..fields['cloud_name'] = cloudName
         ..files.add(http.MultipartFile.fromBytes(
           'file',
           bytes,
@@ -23,13 +24,19 @@ class StorageService {
         ));
 
       final response = await request.send();
-      final respStr = await response.stream.bytesToString(); // Pehle response read karlein
+      final respStr = await response.stream.bytesToString();
       
       if (response.statusCode == 200) {
         final json = jsonDecode(respStr);
         return json['secure_url']; 
       } else {
-        print('Cloudinary Error ($uploadPreset): $respStr'); // Is se exact error pata chalega
+        // Detailed error for the user to see exactly what's wrong
+        print('Cloudinary Error Details:');
+        print('Status Code: ${response.statusCode}');
+        print('URL: $url');
+        print('Cloud Name: $cloudName');
+        print('Preset: $uploadPreset');
+        print('Response Body: $respStr');
         return null;
       }
     } catch (e) {
