@@ -221,6 +221,7 @@ class _MainNavigationState extends State<MainNavigation> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 85),
         child: FloatingActionButton(
+          heroTag: 'main_add_report_fab',
           onPressed: () {
             Navigator.push(
               context,

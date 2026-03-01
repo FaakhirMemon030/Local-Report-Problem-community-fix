@@ -157,6 +157,7 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'map_sync_fab',
         onPressed: () {
           if (_myLocation != null) _mapController.move(_myLocation!, 15);
           else _getMyLocation();
