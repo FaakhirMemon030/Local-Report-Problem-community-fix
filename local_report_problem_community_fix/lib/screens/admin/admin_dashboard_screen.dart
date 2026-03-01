@@ -40,7 +40,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text('ADMIN CONSOLE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 18)),
+        leading: const Icon(Icons.location_city_rounded, color: Color(0xFF60A5FA), size: 24),
+        title: const Text('ADMIN PANNEL', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 18)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         bottom: TabBar(
@@ -51,11 +52,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           unselectedLabelColor: Colors.white24,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
           tabs: const [
-            Tab(text: 'OVERVIEW'),
-            Tab(text: 'MODERATION'),
-            Tab(text: 'ASSIGNMENTS'),
-            Tab(text: 'USERS'),
-            Tab(text: 'WORKERS'),
+            Tab(icon: Icon(Icons.location_city_rounded), text: 'OVERVIEW'),
+            Tab(icon: Icon(Icons.gavel_rounded), text: 'MODERATION'),
+            Tab(icon: Icon(Icons.assignment_turned_in_rounded), text: 'ASSIGNMENTS'),
+            Tab(icon: Icon(Icons.people_alt_rounded), text: 'USERS'),
+            Tab(icon: Icon(Icons.engineering_rounded), text: 'WORKERS'),
           ],
 
         ),
