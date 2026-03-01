@@ -157,10 +157,10 @@ class _MainNavigationState extends State<MainNavigation> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildNavItem(0, Icons.map_outlined, Icons.map_rounded),
-                    _buildNavItem(1, Icons.trending_up_outlined, Icons.trending_up_rounded),
-                    _buildNavItem(2, Icons.assignment_outlined, Icons.assignment_rounded),
-                    _buildNavItem(3, Icons.person_outline, Icons.person_rounded),
+                    Expanded(child: _buildNavItem(0, Icons.map_outlined, Icons.map_rounded)),
+                    Expanded(child: _buildNavItem(1, Icons.trending_up_outlined, Icons.trending_up_rounded)),
+                    Expanded(child: _buildNavItem(2, Icons.assignment_outlined, Icons.assignment_rounded)),
+                    Expanded(child: _buildNavItem(3, Icons.person_outline, Icons.person_rounded)),
                   ],
                 ),
               ),
