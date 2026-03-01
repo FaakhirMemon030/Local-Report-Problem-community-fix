@@ -10,6 +10,7 @@ import '../../models/worker_model.dart';
 import '../../models/assignment_model.dart';
 import '../../services/firestore_service.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:uuid/uuid.dart';
 
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -321,6 +322,24 @@ class _ProblemModerationCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          // Assign to worker
+          SizedBox(
+            width: double.infinity,
+            height: 40,
+            child: ElevatedButton.icon(
+              onPressed: () => _showAssignWorkerSheet(context, problem, fs, auth),
+              icon: const Icon(Icons.engineering_rounded, size: 16),
+              label: const Text('ASSIGN TO WORKER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.8)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
+                foregroundColor: const Color(0xFF10B981),
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+
         ],
       ),
     );
@@ -354,6 +373,171 @@ class _ProblemModerationCard extends StatelessWidget {
       ),
     );
   }
+
+  void _showAssignWorkerSheet(BuildContext context, ProblemModel problem, FirestoreService fs, AuthProvider auth) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF0F172A),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (_, scrollCtrl) => Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4,
+                decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                children: [
+                  const Icon(Icons.engineering_rounded, color: Color(0xFF10B981), size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'ASSIGN: ${problem.title}',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 13),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'Select an approved worker to handle this problem:',
+                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: StreamBuilder<List<WorkerModel>>(
+                stream: fs.getAllWorkers(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
+                  final workers = (snapshot.data ?? [])
+                      .where((w) => w.status == WorkerStatus.approved && !w.isBanned)
+                      .toList();
+
+                  if (workers.isEmpty) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.engineering_rounded, color: Colors.white10, size: 48),
+                          SizedBox(height: 12),
+                          Text('No approved workers available', style: TextStyle(color: Colors.white24, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    controller: scrollCtrl,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: workers.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (_, i) {
+                      final worker = workers[i];
+                      return GestureDetector(
+                        onTap: () async {
+                          Navigator.pop(ctx);
+                          if (auth.currentUserId == null) return;
+                          try {
+                            final assignment = AssignmentModel(
+                              assignmentId: const Uuid().v4(),
+                              problemId: problem.problemId,
+                              problemTitle: problem.title,
+                              problemCategory: problem.category,
+                              problemCity: problem.city,
+                              problemAddress: problem.address,
+                              problemImageUrl: problem.imageUrl,
+                              workerId: worker.workerId,
+                              workerName: worker.name,
+                              assignedBy: auth.currentUserId!,
+                              assignedAt: DateTime.now(),
+                            );
+                            await fs.assignProblemToWorker(assignment);
+                            // Update problem status to inProgress
+                            await fs.updateProblemStatus(problem.problemId, ProblemStatus.inProgress, auth.currentUserId!);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Assigned to ${worker.name}!'),
+                                  backgroundColor: const Color(0xFF10B981),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                              );
+                            }
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E293B),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFF10B981).withOpacity(0.15)),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
+                                child: Icon(_workerCatIcon(worker.category), color: const Color(0xFF10B981), size: 18),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(worker.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                    Text('${worker.category.name.toUpperCase()} • ${worker.city} • ${worker.jobsDone} jobs done',
+                                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11)),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white24),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _workerCatIcon(WorkerCategory cat) {
+    switch (cat) {
+      case WorkerCategory.electrician: return Icons.bolt_rounded;
+      case WorkerCategory.plumber: return Icons.water_drop_rounded;
+      case WorkerCategory.road: return Icons.construction_rounded;
+      case WorkerCategory.drainage: return Icons.waves_rounded;
+      case WorkerCategory.garbage: return Icons.delete_sweep_rounded;
+      case WorkerCategory.election: return Icons.how_to_vote_rounded;
+    }
+  }
+
 
   Widget _buildStatusBadge(ProblemStatus status) {
     Color color = Colors.grey;
