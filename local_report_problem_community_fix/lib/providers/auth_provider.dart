@@ -86,18 +86,4 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
-  Future<void> updateProfileImage(dynamic imageFile) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      final url = await _authService.uploadProfileImage(imageFile);
-      if (_userModel != null) {
-        _userModel = _userModel!.copyWith(profileImageUrl: url);
-      }
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
 }

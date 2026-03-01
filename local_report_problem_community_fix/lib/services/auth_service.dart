@@ -1,14 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 
 class AuthService {
   FirebaseAuth get _auth => FirebaseAuth.instance;
   FirebaseFirestore get _db => FirebaseFirestore.instance;
-  FirebaseStorage get _storage => FirebaseStorage.instance;
 
   Stream<User?> get user => _auth.authStateChanges();
 
@@ -96,25 +92,5 @@ class AuthService {
       await user.updatePassword(newPassword);
       await _db.collection('users').doc(user.uid).update({'password': newPassword});
     }
-  }
-
-  Future<String> uploadProfileImage(dynamic imageFile) async {
-    User? user = _auth.currentUser;
-    if (user == null) throw Exception("User not authenticated");
-
-    final ref = _storage.ref().child('profile_images').child('${user.uid}.jpg');
-
-    if (kIsWeb) {
-      await ref.putData(imageFile as Uint8List);
-    } else {
-      await ref.putFile(imageFile as File);
-    }
-
-    final url = await ref.getDownloadURL();
-    
-    // Update Firestore
-    await _db.collection('users').doc(user.uid).update({'profileImageUrl': url});
-    
-    return url;
   }
 }
