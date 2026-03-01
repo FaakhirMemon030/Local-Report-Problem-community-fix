@@ -93,61 +93,68 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     ..rotateX(0.15 * _animation.value)
                     ..rotateY(0.25 * _animation.value)
                     ..translate(0.0, 0.0, 20 * _animation.value), // Z-depth movement
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Iconic 3D Card
-                      Container(
-                        padding: const EdgeInsets.all(30),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.1 + (0.1 * _animation.value)),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF3B82F6).withOpacity(0.3),
-                              blurRadius: 40,
-                              spreadRadius: -10,
+                  child: SizedBox(
+                    width: 300, // Explicit width for stable hit testing/layout
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Iconic 3D Card
+                        Container(
+                          padding: const EdgeInsets.all(30),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.1 + (0.1 * _animation.value)),
                             ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.location_city_rounded,
-                          size: 100,
-                          color: Color.lerp(
-                            const Color(0xFF60A5FA),
-                            const Color(0xFF3B82F6),
-                            _animation.value,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF3B82F6).withOpacity(0.3),
+                                blurRadius: 40,
+                                spreadRadius: -10,
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.location_city_rounded,
+                            size: 100,
+                            color: Color.lerp(
+                              const Color(0xFF60A5FA),
+                              const Color(0xFF3B82F6),
+                              _animation.value,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Colors.white, Color(0xFF94A3B8)],
-                        ).createShader(bounds),
-                        child: const Text(
-                          "LPRCF",
+                        const SizedBox(height: 32),
+                        ShaderMask(
+                          shaderCallback: (bounds) {
+                            // Ensure bounds are not zero to avoid hit test issues on Web
+                            final actualBounds = bounds.isEmpty ? const Rect.fromLTWH(0, 0, 100, 50) : bounds;
+                            return const LinearGradient(
+                              colors: [Colors.white, Color(0xFF94A3B8)],
+                            ).createShader(actualBounds);
+                          },
+                          child: const Text(
+                            "LPRCF",
+                            style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 8,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "CIVIC REPORTER",
                           style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 8,
-                            color: Colors.white,
+                            fontSize: 14,
+                            letterSpacing: 4,
+                            color: Colors.white.withOpacity(0.5),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "CIVIC REPORTER",
-                        style: TextStyle(
-                          fontSize: 14,
-                          letterSpacing: 4,
-                          color: Colors.white.withOpacity(0.5),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

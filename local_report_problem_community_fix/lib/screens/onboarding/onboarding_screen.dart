@@ -55,6 +55,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             top: 50,
             right: 20,
             child: TextButton(
+              key: const ValueKey('skip_button'),
               onPressed: () => Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
               ),
@@ -94,7 +95,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 
                 // Next/Get Started Button
-                ElevatedButton(
+                 ElevatedButton(
+                  key: const ValueKey('next_button'),
                   onPressed: () {
                     if (_currentPage == _data.length - 1) {
                       Navigator.of(context).pushReplacement(
