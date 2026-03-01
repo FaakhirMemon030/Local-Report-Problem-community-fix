@@ -330,9 +330,7 @@ class _MapScreenState extends State<MapScreen> {
                   final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
                   if (authProvider.currentUserId != null) {
                     try {
-                  if (authProvider.currentUserId != null) {
-                    await problemProvider.voteProblem(p.problemId, authProvider.currentUserId!);
-                  }
+                      await problemProvider.voteProblem(p.problemId, authProvider.currentUserId!);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
