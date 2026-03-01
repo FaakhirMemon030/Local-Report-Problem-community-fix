@@ -338,7 +338,10 @@ class _ProblemModerationCard extends StatelessWidget {
               }
               if (context.mounted) Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              minimumSize: const Size(80, 36),
+            ),
             child: const Text('DELETE'),
           ),
         ],
@@ -406,9 +409,11 @@ class _UserCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.spaceBetween,
             children: [
               _UserStat(label: 'REPORTS', value: user.totalReports.toString()),
               _UserStat(label: 'COINS', value: user.reputationScore.toString()),
@@ -421,11 +426,12 @@ class _UserCard extends StatelessWidget {
                       backgroundColor: user.isBanned ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
                       foregroundColor: user.isBanned ? Colors.green : Colors.red,
                       elevation: 0,
-                      minimumSize: const Size(60, 36),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      minimumSize: const Size(60, 34),
+                      maximumSize: const Size(80, 40),
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: Text(user.isBanned ? 'UNBAN' : 'BAN', style: const TextStyle(fontSize: 12)),
+                    child: Text(user.isBanned ? 'UNBAN' : 'BAN', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   ),
                 ),
               IconButton(
