@@ -108,44 +108,36 @@ class ProblemCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.thumb_up_alt, size: 20, color: Colors.blue),
+                        const Icon(Icons.thumb_up_alt_outlined, size: 20, color: Colors.blue),
                         const SizedBox(width: 6),
                         Text(
                           '${problem.voteCount} Votes',
                           style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
                         ),
+                        const SizedBox(width: 4),
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: const Icon(Icons.add_circle_outline, size: 20, color: Colors.blue),
+                          onPressed: () async {
+                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                            final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
+                            if (authProvider.currentUserId != null) {
+                              await problemProvider.voteProblem(problem.problemId, authProvider.currentUserId!);
+                            }
+                          },
+                        ),
                       ],
                     ),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                        final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
-                        if (authProvider.currentUserId != null) {
-                          await problemProvider.voteProblem(problem.problemId, authProvider.currentUserId!);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Voted Successfully!'), duration: Duration(seconds: 1)),
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text('VOTE'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        backgroundColor: Colors.blue.shade50,
-                        foregroundColor: Colors.blue,
-                        elevation: 0,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.trending_up, size: 18, color: Colors.orange),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Rank: ${problem.priorityScore.toStringAsFixed(1)}',
-                      style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.orange),
+                    Row(
+                      children: [
+                        const Icon(Icons.trending_up, size: 18, color: Colors.orange),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Rank: ${problem.priorityScore.toStringAsFixed(1)}',
+                          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.orange),
+                        ),
+                      ],
                     ),
                   ],
                 ),
