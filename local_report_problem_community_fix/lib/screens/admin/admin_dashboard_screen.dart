@@ -1374,6 +1374,47 @@ class _AssignmentModerationCard extends StatelessWidget {
           ] else if (isDone) ...[
              const Text('Waiting for completion details...', style: TextStyle(color: Colors.white24, fontSize: 12, fontStyle: FontStyle.italic)),
           ],
+          const SizedBox(height: 16),
+          const Divider(color: Colors.white10),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            height: 40,
+            child: TextButton.icon(
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: const Color(0xFF1E293B),
+                    title: const Text('Clear Assignment?', style: TextStyle(color: Colors.white)),
+                    content: const Text('This will remove this assignment record from the dashboard. This action cannot be undone.', style: TextStyle(color: Colors.white70)),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('CANCEL')),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                        child: const Text('CLEAR'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true && auth.currentUserId != null) {
+                  await fs.deleteAssignment(assignment.assignmentId, auth.currentUserId!);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Assignment cleared successfully'), backgroundColor: Colors.redAccent)
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.delete_sweep_outlined, size: 18, color: Colors.redAccent),
+              label: const Text('CLEAR FROM LIST', style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
         ],
       ),
     );
