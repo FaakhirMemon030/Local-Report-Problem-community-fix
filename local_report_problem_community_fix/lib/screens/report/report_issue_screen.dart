@@ -263,106 +263,293 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Report Issue')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Photo Picker
-              GestureDetector(
-                onTap: _showImageSourceDialog,
-                child: SizedBox(
-                  height: 200, width: double.infinity,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100], borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: _imageBytes != null ? const Color(0xFF1A73E8) : Colors.grey.shade300, width: _imageBytes != null ? 2 : 1),
-                    ),
-                    child: _imageBytes != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Image.memory(_imageBytes!, width: double.infinity, height: double.infinity),
-                          )
-                        : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Icon(Icons.add_a_photo_outlined, size: 52, color: Colors.grey[400]),
-                            const SizedBox(height: 8),
-                            const Text('Add Photo', style: TextStyle(fontSize: 15)),
-                          ]),
-                  ),
-                ),
+      backgroundColor: const Color(0xFF0F172A),
+      appBar: AppBar(
+        title: const Text('REPORT ISSUE'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+        ),
+      ),
+      body: Stack(
+        children: [
+          // Background subtle glows
+          Positioned(
+            bottom: 100,
+            right: -50,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF3B82F6).withOpacity(0.05),
               ),
-              const SizedBox(height: 16),
-
-              // Location Card
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.blue.shade200)),
+            ),
+          ),
+          
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+              child: Form(
+                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(children: [
-                      const Icon(Icons.location_on, color: Colors.red, size: 18),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: SizedBox(
-                          height: 48,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(_address, style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 10),
+                    // Photo Picker
+                    GestureDetector(
+                      onTap: _showImageSourceDialog,
+                      child: Container(
+                        height: 220,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: _imageBytes != null ? const Color(0xFF3B82F6).withOpacity(0.5) : Colors.white.withOpacity(0.05),
+                            width: 2,
                           ),
+                          image: _imageBytes != null
+                              ? DecorationImage(image: MemoryImage(_imageBytes!), fit: BoxFit.cover)
+                              : null,
                         ),
+                        child: _imageBytes == null
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF3B82F6).withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.add_a_photo_rounded, size: 40, color: Color(0xFF60A5FA)),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'ADD ISSUE PHOTO',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Take a clear picture of the problem',
+                                    style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
+                                  ),
+                                ],
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(22),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [Colors.transparent, Colors.black.withOpacity(0.5)],
+                                  ),
+                                ),
+                                alignment: Alignment.bottomRight,
+                                padding: const EdgeInsets.all(16),
+                                child: const Icon(Icons.edit_rounded, color: Colors.white),
+                              ),
                       ),
-                      SizedBox(
-                        height: 48, width: 48,
-                        child: IconButton(
-                          onPressed: _locationLoading ? null : _detectGPSLocation, 
-                          icon: SizedBox(
-                            width: 18, height: 18,
-                            child: _locationLoading 
-                                ? const CircularProgressIndicator(strokeWidth: 2) 
-                                : const Icon(Icons.gps_fixed, size: 18),
-                          ),
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ]),
+                    ),
+                    const SizedBox(height: 24),
 
+                    // Location Card
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white.withOpacity(0.05)),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: (_locationFromExif ? const Color(0xFF10B981) : const Color(0xFF3B82F6)).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              _locationFromExif ? Icons.photo_library_rounded : Icons.location_on_rounded,
+                              color: _locationFromExif ? const Color(0xFF34D399) : const Color(0xFF60A5FA),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _locationFromExif ? 'LOCATION FROM PHOTO' : 'CURRENT LOCATION',
+                                  style: TextStyle(
+                                    color: (_locationFromExif ? const Color(0xFF34D399) : const Color(0xFF60A5FA)).withOpacity(0.8),
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 10,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _address,
+                                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: _locationLoading ? null : _detectGPSLocation, 
+                            icon: _locationLoading 
+                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF60A5FA)))
+                                : const Icon(Icons.refresh_rounded, color: Color(0xFF60A5FA)),
+                            style: IconButton.styleFrom(
+                              backgroundColor: const Color(0xFF3B82F6).withOpacity(0.1),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Form Fields
+                    _buildFormLabel('ISSUE TITLE'),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _titleCtrl,
+                      style: const TextStyle(color: Colors.white),
+                      validator: (v) => (v == null || v.isEmpty) ? 'Title required' : null,
+                      decoration: _inputDecoration('Enter a catchy title', Icons.title_rounded),
+                    ),
+                    const SizedBox(height: 20),
+
+                    _buildFormLabel('DESCRIPTION'),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _descCtrl,
+                      maxLines: 4,
+                      style: const TextStyle(color: Colors.white),
+                      validator: (v) => (v == null || v.isEmpty) ? 'Description required' : null,
+                      decoration: _inputDecoration('Describe the problem in detail...', Icons.description_rounded),
+                    ),
+                    const SizedBox(height: 20),
+
+                    _buildFormLabel('CATEGORY'),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      dropdownColor: const Color(0xFF1E293B),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                      items: ['road', 'garbage', 'water', 'electricity', 'other'].map((c) => DropdownMenuItem(
+                        value: c,
+                        child: Text(c.toUpperCase(), style: const TextStyle(fontSize: 14, letterSpacing: 1)),
+                      )).toList(),
+                      onChanged: (v) => setState(() => _selectedCategory = v!),
+                      decoration: _inputDecoration('', Icons.category_rounded),
+                    ),
+                    const SizedBox(height: 40),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _isUploading ? null : _submitReport,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF3B82F6),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          elevation: 0,
+                        ),
+                        child: _isUploading 
+                            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            : const Text('SUBMIT REPORT', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-
-              // Form Fields
-              TextFormField(controller: _titleCtrl, decoration: const InputDecoration(labelText: 'Issue Title', prefixIcon: Icon(Icons.title)), validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
-              const SizedBox(height: 14),
-              TextFormField(controller: _descCtrl, maxLines: 3, decoration: const InputDecoration(labelText: 'Description', prefixIcon: Icon(Icons.description)), validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
-              const SizedBox(height: 14),
-              DropdownButtonFormField<String>(
-                value: _selectedCategory,
-                items: ['road', 'garbage', 'water', 'electricity', 'other'].map((c) => DropdownMenuItem(value: c, child: Text(c.toUpperCase()))).toList(),
-                onChanged: (v) => setState(() => _selectedCategory = v!),
-              ),
-              const SizedBox(height: 28),
-
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton.icon(
-                  onPressed: _isUploading ? null : _submitReport,
-                  icon: SizedBox(
-                    width: 20, height: 20,
-                    child: _isUploading 
-                        ? const CircularProgressIndicator(strokeWidth: 2) 
-                        : const Icon(Icons.send, size: 20),
-                  ),
-                  label: Text(_isUploading ? 'Uploading...' : 'Submit', style: const TextStyle(fontSize: 16)),
-                ),
-              ),
-            ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormLabel(String label) {
+    return Text(
+      label,
+      style: TextStyle(
+        color: Colors.white.withOpacity(0.5),
+        fontSize: 12,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.2), size: 20),
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.05),
+      hintStyle: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.05))),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 1.5)),
+    );
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF0F172A),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (_) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 24),
+            const Text('Add Photo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 24),
+            if (!kIsWeb)
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: const Color(0xFF3B82F6).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                  child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF60A5FA)),
+                ),
+                title: const Text('Take Photo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                onTap: () { Navigator.pop(context); _pickImage(fromCamera: true); },
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: const Color(0xFF10B981).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.photo_library_rounded, color: Color(0xFF34D399)),
+              ),
+              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+              onTap: () { Navigator.pop(context); _pickImage(fromCamera: false); },
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+          ],
         ),
       ),
     );
