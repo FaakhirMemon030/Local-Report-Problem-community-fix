@@ -413,15 +413,20 @@ class _UserCard extends StatelessWidget {
               _UserStat(label: 'REPORTS', value: user.totalReports.toString()),
               _UserStat(label: 'COINS', value: user.reputationScore.toString()),
               if (user.role != 'admin')
-                ElevatedButton(
-                  onPressed: () => authProvider.toggleUserBan(user.userId, !user.isBanned),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: user.isBanned ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
-                    foregroundColor: user.isBanned ? Colors.green : Colors.red,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: () => authProvider.toggleUserBan(user.userId, !user.isBanned),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: user.isBanned ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                      foregroundColor: user.isBanned ? Colors.green : Colors.red,
+                      elevation: 0,
+                      minimumSize: const Size(60, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(user.isBanned ? 'UNBAN' : 'BAN', style: const TextStyle(fontSize: 12)),
                   ),
-                  child: Text(user.isBanned ? 'UNBAN' : 'BAN'),
                 ),
               IconButton(
                 onPressed: () => _showUserPosts(context, user),
