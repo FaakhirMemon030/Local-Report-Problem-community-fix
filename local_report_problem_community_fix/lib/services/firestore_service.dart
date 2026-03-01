@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/problem_model.dart';
 import '../models/user_model.dart';
+import '../models/worker_model.dart';
+import '../models/assignment_model.dart';
 
 class FirestoreService {
   FirebaseFirestore get _db => FirebaseFirestore.instance;
@@ -10,10 +12,9 @@ class FirestoreService {
     String? category,
     String? city,
     String? status,
-    String? sortBy, // 'priorityScore', 'createdAt', 'voteCount'
+    String? sortBy,
   }) {
     Query query = _db.collection('problems');
-
     if (category != null && category != 'other') {
       query = query.where('category', isEqualTo: category);
     }
@@ -23,7 +24,6 @@ class FirestoreService {
     if (status != null) {
       query = query.where('status', isEqualTo: status);
     }
-
     if (sortBy == 'priorityScore') {
       query = query.orderBy('priorityScore', descending: true);
     } else if (sortBy == 'voteCount') {
@@ -31,29 +31,19 @@ class FirestoreService {
     } else {
       query = query.orderBy('createdAt', descending: true);
     }
-
     return query.snapshots().map((snapshot) => snapshot.docs
         .map((doc) => ProblemModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
         .toList());
   }
 
-  // Report a new problem
   Future<void> reportProblem(ProblemModel problem) async {
     try {
       print("LPRCF: Starting reportProblem for ID: ${problem.problemId}");
-      
-      final problemData = problem.toMap();
-      print("LPRCF: Model converted to Map successfully.");
-
-      await _db.collection('problems').doc(problem.problemId).set(problemData);
+      await _db.collection('problems').doc(problem.problemId).set(problem.toMap());
       print("LPRCF: 'problems' document set successfully.");
-      
-      // Increment user's total reports (Safer implementation for web)
-      print("LPRCF: Updating user: ${problem.reportedBy}");
       await _db.collection('users').doc(problem.reportedBy).set({
         'totalReports': FieldValue.increment(1),
       }, SetOptions(merge: true));
-      
       print("LPRCF: User report count incremented successfully.");
     } catch (e) {
       print("LPRCF: Firestore Error in reportProblem: $e");
@@ -61,42 +51,29 @@ class FirestoreService {
     }
   }
 
-  // Vote for a problem
   Future<void> voteProblem(String problemId, String userId) async {
     try {
-      print("LPRCF: Starting voteProblem for Problem: $problemId by User: $userId");
-      
-      // 1. Add record to 'votes' collection
       await _db.collection('votes').add({
         'problemId': problemId,
         'userId': userId,
         'createdAt': DateTime.now(),
       });
-
-      // 2. Increment voteCount and update priorityScore on the problem document
-      // We do this directly since Cloud Functions might not be set up/running.
-      print("LPRCF: Incrementing voteCount in problems collection...");
       await _db.collection('problems').doc(problemId).update({
         'voteCount': FieldValue.increment(1),
-        'priorityScore': FieldValue.increment(1.0), // Simplified priority update
+        'priorityScore': FieldValue.increment(1.0),
         'lastUpdated': DateTime.now(),
       });
-
-      print("LPRCF: Vote and count update successful.");
     } catch (e) {
       print("LPRCF: Firestore Error in voteProblem: $e");
       rethrow;
     }
   }
 
-  // Admin: Update problem status
   Future<void> updateProblemStatus(String problemId, ProblemStatus status, String adminId) async {
     await _db.collection('problems').doc(problemId).update({
       'status': status.name,
       'lastUpdated': FieldValue.serverTimestamp(),
     });
-
-    // Log the action
     await _db.collection('admin_logs').add({
       'problemId': problemId,
       'actionType': 'status_change_${status.name}',
@@ -105,11 +82,8 @@ class FirestoreService {
     });
   }
 
-  // Admin: Delete a problem report
   Future<void> deleteProblem(String problemId, String adminId) async {
     await _db.collection('problems').doc(problemId).delete();
-
-    // Log the action
     await _db.collection('admin_logs').add({
       'problemId': problemId,
       'actionType': 'delete_problem',
@@ -118,28 +92,105 @@ class FirestoreService {
     });
   }
 
-  // Admin: Get all users
   Stream<List<UserModel>> getAllUsers() {
     return _db.collection('users').snapshots().map((snapshot) => snapshot.docs
         .map((doc) => UserModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
         .toList());
   }
 
-  // Admin: Update user ban status
   Future<void> updateUserBanStatus(String userId, bool isBanned) async {
     await _db.collection('users').doc(userId).update({'isBanned': isBanned});
   }
 
-  // Admin: Delete user (Kick)
   Future<void> deleteUser(String userId, String adminId) async {
     await _db.collection('users').doc(userId).delete();
-
-    // Log the action
     await _db.collection('admin_logs').add({
       'targetUserId': userId,
       'actionType': 'delete_user_kick',
       'actionBy': adminId,
       'timestamp': FieldValue.serverTimestamp(),
     });
+  }
+
+  // ─── WORKER MANAGEMENT ────────────────────────────────────
+
+  Stream<List<WorkerModel>> getAllWorkers() {
+    return _db.collection('workers').orderBy('createdAt', descending: true).snapshots().map(
+          (snap) => snap.docs
+              .map((doc) => WorkerModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
+              .toList(),
+        );
+  }
+
+  Future<void> updateWorkerStatus(String workerId, WorkerStatus status, String adminId) async {
+    await _db.collection('workers').doc(workerId).update({'status': status.name});
+    await _db.collection('admin_logs').add({
+      'targetWorkerId': workerId,
+      'actionType': 'worker_status_${status.name}',
+      'actionBy': adminId,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> updateWorkerBanStatus(String workerId, bool isBanned) async {
+    await _db.collection('workers').doc(workerId).update({'isBanned': isBanned});
+  }
+
+  Future<void> deleteWorker(String workerId, String adminId) async {
+    await _db.collection('workers').doc(workerId).delete();
+    await _db.collection('admin_logs').add({
+      'targetWorkerId': workerId,
+      'actionType': 'delete_worker_kick',
+      'actionBy': adminId,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // ─── JOB ASSIGNMENTS ──────────────────────────────────────
+
+  Future<void> assignProblemToWorker(AssignmentModel assignment) async {
+    await _db.collection('assignments').doc(assignment.assignmentId).set(assignment.toMap());
+    await _db.collection('admin_logs').add({
+      'problemId': assignment.problemId,
+      'workerId': assignment.workerId,
+      'actionType': 'assign_problem',
+      'actionBy': assignment.assignedBy,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Stream<List<AssignmentModel>> getAssignmentsForWorker(String workerId) {
+    return _db.collection('assignments')
+        .where('workerId', isEqualTo: workerId)
+        .orderBy('assignedAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs
+            .map((doc) => AssignmentModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
+            .toList());
+  }
+
+  Stream<List<AssignmentModel>> getAllAssignments() {
+    return _db
+        .collection('assignments')
+        .orderBy('assignedAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs
+            .map((doc) => AssignmentModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
+            .toList());
+  }
+
+  Future<void> markAssignmentDone(String assignmentId, String notes) async {
+    await _db.collection('assignments').doc(assignmentId).update({
+      'status': AssignmentStatus.done.name,
+      'workerNotes': notes,
+      'completedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> incrementWorkerJobsDone(String workerId) async {
+    await _db
+        .collection('workers')
+        .doc(workerId)
+        .update({'jobsDone': FieldValue.increment(1)});
   }
 }
