@@ -86,4 +86,16 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> deleteAccount() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _authService.deleteAccount();
+      _userModel = null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

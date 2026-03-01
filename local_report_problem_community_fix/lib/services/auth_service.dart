@@ -93,4 +93,14 @@ class AuthService {
       await _db.collection('users').doc(user.uid).update({'password': newPassword});
     }
   }
+
+  Future<void> deleteAccount() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // 1. Delete user document from Firestore
+      await _db.collection('users').doc(user.uid).delete();
+      // 2. Delete user from Firebase Auth
+      await user.delete();
+    }
+  }
 }
