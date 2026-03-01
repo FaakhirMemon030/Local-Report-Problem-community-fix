@@ -11,154 +11,211 @@ class ProblemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("LPRCF: Rendering ProblemCard for '${problem.title}' (ID: ${problem.problemId}) - Votes: ${problem.voteCount}");
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey[200]!),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Stack(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Section with Status Overlay
+            Stack(
               children: [
                 Image.network(
                   problem.imageUrl,
-                  height: 200,
+                  height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
-                    height: 200,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                    height: 180,
+                    color: const Color(0xFF0F172A),
+                    child: Icon(Icons.broken_image_rounded, size: 40, color: Colors.white.withOpacity(0.1)),
+                  ),
+                ),
+                // Gradient Overlay for better text visibility
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.black.withOpacity(0.4), Colors.transparent, Colors.black.withOpacity(0.4)],
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.category_rounded, size: 12, color: Colors.white.withOpacity(0.8)),
+                        const SizedBox(width: 4),
+                        Text(
+                          problem.category.toUpperCase(),
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(
                   top: 12,
                   right: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: _getStatusColor(problem.status).withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [BoxShadow(color: _getStatusColor(problem.status).withOpacity(0.3), blurRadius: 8)],
                     ),
                     child: Text(
                       problem.status.name.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(4),
+            
+            // Content Section
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          problem.title,
+                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      child: Text(
-                        problem.category.toUpperCase(),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue),
+                      const SizedBox(width: 8),
+                      Text(
+                        timeago.format(problem.createdAt),
+                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11),
                       ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      timeago.format(problem.createdAt),
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(problem.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        problem.address,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_rounded, size: 14, color: Colors.white.withOpacity(0.4)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          problem.address,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 13),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      height: 40,
-                      child: Material(
-                        key: const ValueKey('vote_material'),
-                        color: Colors.transparent,
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Action Section
+                  Row(
+                    children: [
+                      // Upvote Button
+                      Expanded(
                         child: InkWell(
                           onTap: () async {
                             final authProvider = Provider.of<AuthProvider>(context, listen: false);
                             final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
                             if (authProvider.currentUserId != null) {
-                              await problemProvider.voteProblem(problem.problemId, authProvider.currentUserId!);
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Voted Successfully!'), duration: Duration(seconds: 1)),
-                                );
+                              try {
+                                await problemProvider.voteProblem(problem.problemId, authProvider.currentUserId!);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text('Upvoted Successfully!'),
+                                      backgroundColor: const Color(0xFF3B82F6),
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                print("LPRCF: ProblemCard vote error: $e");
                               }
                             }
                           },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF3B82F6).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.2)),
+                            ),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.thumb_up_alt_outlined, size: 20, color: Colors.blue),
-                                const SizedBox(width: 6),
+                                const Icon(Icons.thumb_up_rounded, size: 18, color: Color(0xFF60A5FA)),
+                                const SizedBox(width: 8),
                                 Text(
-                                  '${problem.voteCount} Votes',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                                  '${problem.voteCount} UPVOTES',
+                                  style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 12, fontWeight: FontWeight.w900),
                                 ),
                               ],
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.trending_up, size: 18, color: Colors.orange),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Rank: ${problem.priorityScore.toStringAsFixed(1)}',
-                          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.orange),
+                      const SizedBox(width: 12),
+                      // Priority Score
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.orange.withOpacity(0.2)),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                        child: Row(
+                          children: [
+                            const Icon(Icons.trending_up_rounded, size: 18, color: Colors.orange),
+                            const SizedBox(width: 6),
+                            Text(
+                              problem.priorityScore.toStringAsFixed(1),
+                              style: const TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.w900),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -166,9 +223,9 @@ class ProblemCard extends StatelessWidget {
   Color _getStatusColor(ProblemStatus status) {
     switch (status) {
       case ProblemStatus.pending: return Colors.orange;
-      case ProblemStatus.approved: return Colors.blue;
-      case ProblemStatus.resolved: return Colors.green;
-      case ProblemStatus.rejected: return Colors.red;
+      case ProblemStatus.approved: return const Color(0xFF3B82F6);
+      case ProblemStatus.resolved: return const Color(0xFF10B981);
+      case ProblemStatus.rejected: return Colors.redAccent;
     }
   }
 }
