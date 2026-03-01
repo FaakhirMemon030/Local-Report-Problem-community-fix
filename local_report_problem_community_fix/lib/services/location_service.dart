@@ -5,6 +5,29 @@ import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 
+class AddressInfo {
+  final String fullAddress;
+  final String city;
+  final String district;
+  final String road;
+
+  AddressInfo({
+    required this.fullAddress, 
+    required this.city, 
+    required this.district, 
+    required this.road
+  });
+
+  factory AddressInfo.fromCoords(double lat, double lng) {
+    return AddressInfo(
+      fullAddress: "Coords: ${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)}",
+      city: "Unknown",
+      district: "",
+      road: "Unknown Road",
+    );
+  }
+}
+
 class LocationService {
   Future<Position?> getCurrentLocation() async {
     try {
@@ -39,7 +62,7 @@ class LocationService {
     }
   }
 
-  Future<String?> getAddressFromLatLng(LatLng position) async {
+  Future<AddressInfo> getAddressFromLatLng(LatLng position) async {
     // Try native geocoding first (Mobile)
     if (!kIsWeb) {
       try {
@@ -49,7 +72,12 @@ class LocationService {
         );
         if (placemarks.isNotEmpty) {
           final p = placemarks[0];
-          return "${p.street}, ${p.locality}, ${p.administrativeArea}".replaceAll(", null", "");
+          return AddressInfo(
+            fullAddress: "${p.street}, ${p.locality}, ${p.administrativeArea}".replaceAll(", null", ""),
+            city: p.locality ?? p.subAdministrativeArea ?? "Unknown",
+            district: p.subAdministrativeArea ?? "",
+            road: p.street ?? "Unknown Road",
+          );
         }
       } catch (e) {
         print('LPRCF: Native geocoding error: $e');
@@ -68,7 +96,18 @@ class LocationService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['display_name'] ?? "Unknown Location";
+        final addr = data['address'] as Map<String, dynamic>? ?? {};
+        
+        String city = addr['city'] ?? addr['town'] ?? addr['village'] ?? "Unknown";
+        String road = addr['road'] ?? addr['neighbourhood'] ?? addr['suburb'] ?? "Unknown Road";
+        String district = addr['city_district'] ?? addr['county'] ?? "";
+
+        return AddressInfo(
+          fullAddress: data['display_name'] ?? "Unknown Location",
+          city: city,
+          district: district,
+          road: road,
+        );
       } else {
         print("LPRCF: Nominatim error ${response.statusCode}");
       }
@@ -76,6 +115,6 @@ class LocationService {
       print('LPRCF: Nominatim exception: $e');
     }
 
-    return "Coords: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}";
+    return AddressInfo.fromCoords(position.latitude, position.longitude);
   }
 }

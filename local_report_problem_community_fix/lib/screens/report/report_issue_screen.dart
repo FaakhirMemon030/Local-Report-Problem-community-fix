@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:exif/exif.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart'; // image_cropper hata diya gaya hai
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +31,8 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   // Location
   LatLng? _location;
   String _address = 'Tap to detect GPS location';
+  String _city = '';
+  String _district = '';
   bool _locationLoading = false;
   bool _locationFromExif = false;
 
@@ -76,9 +77,13 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     });
 
     try {
-      final address = await _locationService.getAddressFromLatLng(latLng);
-      if (address != null && mounted) {
-        setState(() => _address = address);
+      final info = await _locationService.getAddressFromLatLng(latLng);
+      if (mounted) {
+        setState(() {
+          _address = info.fullAddress;
+          _city = info.city;
+          _district = info.district;
+        });
       }
     } catch (e) {
       print("LPRCF: Address detection error: $e");
@@ -238,8 +243,8 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
         status: ProblemStatus.pending,
         createdAt: DateTime.now(),
         lastUpdated: DateTime.now(),
-        city: authProvider.userModel?.city ?? '',
-        district: '',
+        city: _city.isNotEmpty ? _city : (authProvider.userModel?.city ?? ''),
+        district: _district,
       );
 
       await problemProvider.reportProblem(problem);
