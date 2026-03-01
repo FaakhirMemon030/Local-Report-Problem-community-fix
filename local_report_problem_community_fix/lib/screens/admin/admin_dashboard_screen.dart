@@ -541,3 +541,296 @@ class _UserStat extends StatelessWidget {
     ],
   );
 }
+
+// ─────────────────────────────────────────────────────────
+// WORKERS TAB
+// ─────────────────────────────────────────────────────────
+class _WorkersTab extends StatefulWidget {
+  const _WorkersTab();
+
+  @override
+  State<_WorkersTab> createState() => _WorkersTabState();
+}
+
+class _WorkersTabState extends State<_WorkersTab> with SingleTickerProviderStateMixin {
+  late TabController _subTab;
+
+  @override
+  void initState() {
+    super.initState();
+    _subTab = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _subTab.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          color: const Color(0xFF1E293B),
+          child: TabBar(
+            controller: _subTab,
+            indicatorColor: const Color(0xFF10B981),
+            labelColor: const Color(0xFF10B981),
+            unselectedLabelColor: Colors.white38,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.8),
+            tabs: const [Tab(text: 'PENDING APPROVALS'), Tab(text: 'APPROVED WORKERS')],
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _subTab,
+            children: [
+              _WorkerList(filter: WorkerStatus.pending),
+              _WorkerList(filter: WorkerStatus.approved),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _WorkerList extends StatelessWidget {
+  final WorkerStatus filter;
+  const _WorkerList({required this.filter});
+
+  @override
+  Widget build(BuildContext context) {
+    final fs = FirestoreService();
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+
+    return StreamBuilder<List<WorkerModel>>(
+      stream: fs.getAllWorkers(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)));
+        final workers = (snapshot.data ?? []).where((w) => w.status == filter && !w.isBanned).toList();
+
+        if (workers.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(filter == WorkerStatus.pending ? Icons.hourglass_empty_rounded : Icons.engineering_rounded,
+                    color: Colors.white12, size: 56),
+                const SizedBox(height: 16),
+                Text(
+                  filter == WorkerStatus.pending ? 'No Pending Approvals' : 'No Approved Workers',
+                  style: const TextStyle(color: Colors.white30, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: workers.length,
+          itemBuilder: (_, i) => _WorkerCard(worker: workers[i], auth: auth, fs: fs),
+        );
+      },
+    );
+  }
+}
+
+class _WorkerCard extends StatelessWidget {
+  final WorkerModel worker;
+  final AuthProvider auth;
+  final FirestoreService fs;
+  const _WorkerCard({required this.worker, required this.auth, required this.fs});
+
+  IconData _catIcon(WorkerCategory cat) {
+    switch (cat) {
+      case WorkerCategory.electrician: return Icons.bolt_rounded;
+      case WorkerCategory.plumber: return Icons.water_drop_rounded;
+      case WorkerCategory.road: return Icons.construction_rounded;
+      case WorkerCategory.drainage: return Icons.waves_rounded;
+      case WorkerCategory.garbage: return Icons.delete_sweep_rounded;
+      case WorkerCategory.election: return Icons.how_to_vote_rounded;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isPending = worker.status == WorkerStatus.pending;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isPending
+              ? Colors.orange.withOpacity(0.2)
+              : const Color(0xFF10B981).withOpacity(0.15),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
+                child: Icon(_catIcon(worker.category), color: const Color(0xFF10B981)),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(worker.name.isNotEmpty ? worker.name : 'No Name',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                    Text(worker.email, style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(_catIcon(worker.category), color: const Color(0xFF10B981), size: 12),
+                  const SizedBox(width: 4),
+                  Text(worker.category.name.toUpperCase(),
+                      style: const TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold)),
+                ]),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Details
+          Wrap(
+            spacing: 12,
+            runSpacing: 6,
+            children: [
+              _detail(Icons.phone_outlined, worker.phone),
+              _detail(Icons.credit_card_outlined, worker.cnic),
+              _detail(Icons.location_city_outlined, worker.city),
+              _detail(Icons.work_rounded, '${worker.jobsDone} jobs done'),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Actions
+          if (isPending)
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 42,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        if (auth.currentUserId != null) {
+                          await fs.updateWorkerStatus(worker.workerId, WorkerStatus.approved, auth.currentUserId!);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('${worker.name} approved!'), backgroundColor: const Color(0xFF10B981)),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.check_rounded, size: 16),
+                      label: const Text('APPROVE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981).withOpacity(0.15),
+                        foregroundColor: const Color(0xFF10B981),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: SizedBox(
+                    height: 42,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        if (auth.currentUserId != null) {
+                          await fs.updateWorkerStatus(worker.workerId, WorkerStatus.rejected, auth.currentUserId!);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('${worker.name} rejected.'), backgroundColor: Colors.redAccent),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.close_rounded, size: 16),
+                      label: const Text('REJECT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.withOpacity(0.1),
+                        foregroundColor: Colors.redAccent,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await fs.updateWorkerBanStatus(worker.workerId, true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange.withOpacity(0.1),
+                        foregroundColor: Colors.orange,
+                        elevation: 0,
+                        minimumSize: const Size(60, 36),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('BAN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (auth.currentUserId != null) {
+                          await fs.deleteWorker(worker.workerId, auth.currentUserId!);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.withOpacity(0.1),
+                        foregroundColor: Colors.redAccent,
+                        elevation: 0,
+                        minimumSize: const Size(60, 36),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('KICK', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _detail(IconData icon, String text) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 13, color: Colors.white24),
+      const SizedBox(width: 4),
+      Text(text, style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 12)),
+    ],
+  );
+}

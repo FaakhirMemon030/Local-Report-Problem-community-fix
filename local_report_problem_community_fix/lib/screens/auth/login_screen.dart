@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../main.dart';
 import 'signup_screen.dart';
+import '../worker/worker_login_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -223,6 +225,30 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Worker Portal Divider
+                      Row(children: [
+                        Expanded(child: Divider(color: Colors.white.withOpacity(0.08))),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('OR', style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(child: Divider(color: Colors.white.withOpacity(0.08))),
+                      ]),
+                      const SizedBox(height: 16),
+                      // Worker Portal Button
+                      SizedBox(
+                        width: double.infinity, height: 52,
+                        child: OutlinedButton.icon(
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkerLoginScreen())),
+                          icon: const Icon(Icons.engineering_rounded, color: Color(0xFF10B981), size: 20),
+                          label: const Text('WORKER PORTAL', style: TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFF10B981), width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
                         ),
                       ),
                     ],
