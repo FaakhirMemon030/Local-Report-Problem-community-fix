@@ -212,7 +212,7 @@ class _MapScreenState extends State<MapScreen> {
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide.none),
                     showCheckmark: false,
                   )
                 ).toList(),
@@ -238,7 +238,7 @@ class _MapScreenState extends State<MapScreen> {
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide.none),
                     showCheckmark: false,
                   )
                 ).toList(),

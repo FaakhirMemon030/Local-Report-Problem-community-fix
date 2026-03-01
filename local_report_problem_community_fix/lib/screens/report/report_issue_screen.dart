@@ -170,43 +170,6 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     }
   }
 
-  void _showImageSourceDialog() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 16),
-            if (!kIsWeb)
-              ListTile(
-                leading: const Icon(Icons.camera_alt_outlined, color: Colors.blue),
-                title: const Text('Take Photo'),
-                onTap: () async { 
-                  Navigator.pop(context); 
-                  await Future.delayed(const Duration(milliseconds: 150));
-                  _pickImage(fromCamera: true); 
-                },
-              ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined, color: Colors.blue),
-              title: const Text('Choose from Gallery'),
-              onTap: () async { 
-                Navigator.pop(context); 
-                await Future.delayed(const Duration(milliseconds: 150));
-                _pickImage(fromCamera: false); 
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
 
   // ─── Submit ───────────────────────────────────────────────────────────────
   Future<void> _submitReport() async {
