@@ -280,6 +280,12 @@ class _ProblemModerationCard extends StatelessWidget {
                 ),
               ),
               _buildStatusBadge(problem.status),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => _confirmDeleteProblem(context, problem.problemId),
+                icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
+                style: IconButton.styleFrom(backgroundColor: Colors.redAccent.withOpacity(0.1)),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -304,6 +310,30 @@ class _ProblemModerationCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteProblem(BuildContext context, String problemId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: const Text('Delete Post?', style: TextStyle(color: Colors.white)),
+        content: const Text('Are you sure you want to remove this report?', style: TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+          ElevatedButton(
+            onPressed: () async {
+              final pp = Provider.of<ProblemProvider>(context, listen: false);
+              final auth = Provider.of<AuthProvider>(context, listen: false);
+              await pp.deleteProblem(problemId, auth.currentUserId!);
+              if (context.mounted) Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            child: const Text('DELETE'),
           ),
         ],
       ),
@@ -381,11 +411,37 @@ class _UserCard extends StatelessWidget {
                   ),
                   child: Text(user.isBanned ? 'UNBAN' : 'BAN'),
                 ),
-              IconButton(
                 onPressed: () => _showUserPosts(context, user),
-                icon: const Icon(Icons.list_alt_rounded, color: Color(0xFF60A5FA)),
+                icon: const Icon(Icons.list_alt_rounded, color: Color(0xFF60A5FA), size: 18),
+              ),
+              IconButton(
+                onPressed: () => _confirmKickUser(context, user),
+                icon: const Icon(Icons.person_remove_rounded, color: Colors.redAccent, size: 18),
+                style: IconButton.styleFrom(backgroundColor: Colors.redAccent.withOpacity(0.05)),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmKickUser(BuildContext context, UserModel user) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: Text('Kick ${user.name}?', style: const TextStyle(color: Colors.white)),
+        content: const Text('This will delete the user account from the system. Continue?', style: TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+          ElevatedButton(
+            onPressed: () async {
+              await Provider.of<AuthProvider>(context, listen: false).adminDeleteUser(user.userId);
+              if (context.mounted) Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            child: const Text('KICK'),
           ),
         ],
       ),
@@ -417,6 +473,15 @@ class _UserCard extends StatelessWidget {
                         leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(p.imageUrl, width: 40, height: 40, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.image))),
                         title: Text(p.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                         subtitle: Text(p.status.name.toUpperCase(), style: TextStyle(color: const Color(0xFF3B82F6), fontSize: 10, fontWeight: FontWeight.bold)),
+                        trailing: IconButton(
+                          onPressed: () async {
+                            final pp = Provider.of<ProblemProvider>(context, listen: false);
+                            final auth = Provider.of<AuthProvider>(context, listen: false);
+                            await pp.deleteProblem(p.problemId, auth.currentUserId!);
+                            if (context.mounted) Navigator.pop(context); // Close sheet
+                          },
+                          icon: const Icon(Icons.delete_sweep_rounded, color: Colors.redAccent, size: 18),
+                        ),
                       );
                     },
                   ),

@@ -38,4 +38,9 @@ class ProblemProvider with ChangeNotifier {
   Future<void> voteProblem(String problemId, String userId) async {
     await _firestoreService.voteProblem(problemId, userId);
   }
+
+  Future<void> deleteProblem(String problemId, String adminId) async {
+    await _firestoreService.deleteProblem(problemId, adminId);
+    notifyListeners();
+  }
 }

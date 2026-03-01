@@ -107,4 +107,14 @@ class AuthProvider with ChangeNotifier {
     await _authService.updateUserBanStatus(userId, isBanned);
     notifyListeners();
   }
+
+  // Admin: Delete user (Kick)
+  Future<void> adminDeleteUser(String userId) async {
+    if (currentUserId != null) {
+      await _authService.updateUserBanStatus(userId, true); // Ban first
+      final firestore = FirestoreService();
+      await firestore.deleteUser(userId, currentUserId!);
+      notifyListeners();
+    }
+  }
 }

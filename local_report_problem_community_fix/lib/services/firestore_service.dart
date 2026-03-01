@@ -105,6 +105,19 @@ class FirestoreService {
     });
   }
 
+  // Admin: Delete a problem report
+  Future<void> deleteProblem(String problemId, String adminId) async {
+    await _db.collection('problems').doc(problemId).delete();
+
+    // Log the action
+    await _db.collection('admin_logs').add({
+      'problemId': problemId,
+      'actionType': 'delete_problem',
+      'actionBy': adminId,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
   // Admin: Get all users
   Stream<List<UserModel>> getAllUsers() {
     return _db.collection('users').snapshots().map((snapshot) => snapshot.docs
@@ -115,5 +128,18 @@ class FirestoreService {
   // Admin: Update user ban status
   Future<void> updateUserBanStatus(String userId, bool isBanned) async {
     await _db.collection('users').doc(userId).update({'isBanned': isBanned});
+  }
+
+  // Admin: Delete user (Kick)
+  Future<void> deleteUser(String userId, String adminId) async {
+    await _db.collection('users').doc(userId).delete();
+
+    // Log the action
+    await _db.collection('admin_logs').add({
+      'targetUserId': userId,
+      'actionType': 'delete_user_kick',
+      'actionBy': adminId,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 }
