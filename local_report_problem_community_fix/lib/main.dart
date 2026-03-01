@@ -13,6 +13,7 @@ import 'screens/report/report_issue_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/splash/splash_screen.dart';
 import 'dart:ui';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'screens/profile/profile_screen.dart';
 
 
@@ -190,33 +191,26 @@ class _MainNavigationState extends State<MainNavigation> {
         index: _selectedIndex,
         children: _screens,
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                height: 70,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B).withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Expanded(child: _buildNavItem(0, Icons.map_outlined, Icons.map_rounded)),
-                    Expanded(child: _buildNavItem(1, Icons.trending_up_outlined, Icons.trending_up_rounded)),
-                    Expanded(child: _buildNavItem(2, Icons.assignment_outlined, Icons.assignment_rounded)),
-                    Expanded(child: _buildNavItem(3, Icons.person_outline, Icons.person_rounded)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _selectedIndex,
+        height: 65,
+        items: const [
+          Icon(Icons.map_rounded, size: 26, color: Colors.white),
+          Icon(Icons.trending_up_rounded, size: 26, color: Colors.white),
+          Icon(Icons.assignment_rounded, size: 26, color: Colors.white),
+          Icon(Icons.person_rounded, size: 26, color: Colors.white),
+        ],
+        color: const Color(0xFF1E293B),
+        buttonBackgroundColor: const Color(0xFF3B82F6),
+        backgroundColor: const Color(0xFF0F172A),
+        animationCurve: Curves.easeInOut,
+        animationDuration: const Duration(milliseconds: 400),
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        letIndexChange: (index) => true,
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 85),
@@ -237,39 +231,6 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData activeIcon) {
-    final isSelected = _selectedIndex == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = index),
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF3B82F6).withOpacity(0.1) : Colors.transparent,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? const Color(0xFF60A5FA) : const Color(0xFF94A3B8),
-              size: 26,
-            ),
-          ),
-          if (isSelected)
-            Container(
-              width: 4,
-              height: 4,
-              decoration: const BoxDecoration(
-                color: Color(0xFF60A5FA),
-                shape: BoxShape.circle,
-              ),
-            ),
-        ],
-      ),
-    );
   }
 }
 
