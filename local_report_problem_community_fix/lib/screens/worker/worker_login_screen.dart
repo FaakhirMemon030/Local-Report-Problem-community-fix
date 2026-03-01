@@ -144,12 +144,33 @@ class _WorkerLoginScreenState extends State<WorkerLoginScreen> {
     try {
       final provider = Provider.of<WorkerProvider>(context, listen: false);
       await provider.signIn(_emailController.text.trim(), _passwordController.text.trim());
-      if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const WorkerDashboardScreen()),
-          (route) => false,
-        );
+      final worker = provider.workerModel;
+      if (!context.mounted) return;
+      
+      if (worker == null) {
+        setState(() => _error = 'Account not found. Please register first.');
+        return;
       }
+      if (worker.isBanned) {
+        await provider.signOut();
+        setState(() => _error = 'Your account has been suspended. Contact admin.');
+        return;
+      }
+      if (worker.status == WorkerStatus.rejected) {
+        await provider.signOut();
+        setState(() => _error = 'Your application was rejected. Contact admin.');
+        return;
+      }
+      if (worker.status == WorkerStatus.pending) {
+        await provider.signOut();
+        setState(() => _error = 'Your account is pending admin approval. Please wait.');
+        return;
+      }
+      // Approved and not banned — allow in
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const WorkerDashboardScreen()),
+        (route) => false,
+      );
     } catch (e) {
       setState(() => _error = e.toString().replaceAll('Exception: ', ''));
     }
