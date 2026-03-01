@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum ProblemStatus { pending, approved, resolved, rejected }
+enum ProblemStatus { pending, approved, inProgress, solved, rejected }
 
 class ProblemModel {
   final String problemId;

@@ -10,6 +10,7 @@ class UserModel {
   final int reputationScore;
   final int totalReports;
   final DateTime createdAt;
+  final bool isBanned;
 
   UserModel({
     required this.userId,
@@ -21,6 +22,7 @@ class UserModel {
     required this.reputationScore,
     required this.totalReports,
     required this.createdAt,
+    this.isBanned = false,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data, String id) {
@@ -36,6 +38,7 @@ class UserModel {
       createdAt: data['createdAt'] != null 
           ? (data['createdAt'] as Timestamp).toDate() 
           : DateTime.now(),
+      isBanned: data['isBanned'] ?? false,
     );
   }
 
@@ -49,6 +52,7 @@ class UserModel {
       'reputationScore': reputationScore,
       'totalReports': totalReports,
       'createdAt': Timestamp.fromDate(createdAt),
+      'isBanned': isBanned,
     };
   }
 
@@ -58,6 +62,7 @@ class UserModel {
     String? password,
     int? reputationScore,
     int? totalReports,
+    bool? isBanned,
   }) {
     return UserModel(
       userId: userId,
@@ -69,6 +74,7 @@ class UserModel {
       reputationScore: reputationScore ?? this.reputationScore,
       totalReports: totalReports ?? this.totalReports,
       createdAt: createdAt,
+      isBanned: isBanned ?? this.isBanned,
     );
   }
 }
