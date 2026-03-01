@@ -15,6 +15,7 @@ class AssignmentModel {
   final String assignedBy; // admin userId
   final AssignmentStatus status;
   final String workerNotes;
+  final String completionImageUrl; // after-work photo by worker
   final DateTime assignedAt;
   final DateTime? completedAt;
 
@@ -31,6 +32,7 @@ class AssignmentModel {
     required this.assignedBy,
     this.status = AssignmentStatus.assigned,
     this.workerNotes = '',
+    this.completionImageUrl = '',
     required this.assignedAt,
     this.completedAt,
   });
@@ -53,6 +55,7 @@ class AssignmentModel {
       assignedBy: map['assignedBy'] ?? '',
       status: st,
       workerNotes: map['workerNotes'] ?? '',
+      completionImageUrl: map['completionImageUrl'] ?? '',
       assignedAt: map['assignedAt'] != null && map['assignedAt'] is Timestamp
           ? (map['assignedAt'] as Timestamp).toDate()
           : DateTime.now(),
@@ -74,6 +77,7 @@ class AssignmentModel {
     'assignedBy': assignedBy,
     'status': status.name,
     'workerNotes': workerNotes,
+    'completionImageUrl': completionImageUrl,
     'assignedAt': Timestamp.fromDate(assignedAt),
     'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
   };
