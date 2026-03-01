@@ -411,6 +411,7 @@ class _UserCard extends StatelessWidget {
                   ),
                   child: Text(user.isBanned ? 'UNBAN' : 'BAN'),
                 ),
+              IconButton(
                 onPressed: () => _showUserPosts(context, user),
                 icon: const Icon(Icons.list_alt_rounded, color: Color(0xFF60A5FA), size: 18),
               ),
