@@ -186,7 +186,7 @@ class FirestoreService {
     });
   }
 
-  Stream<List<AssignmentModel>> getAssignmentsForWorker(String workerId) {
+  Stream<List<AssignmentModel>> getAssignmentsForWorker(String workerId, {String? workerCategory}) {
     return _db.collection('assignments')
         .where('workerId', isEqualTo: workerId)
         .snapshots()
@@ -194,9 +194,13 @@ class FirestoreService {
           final list = snap.docs
               .map((doc) => AssignmentModel.fromMap(doc.data() as Map<String, dynamic>?, doc.id))
               .toList();
+          // Filter by category if provided
+          final filtered = workerCategory != null
+              ? list.where((a) => a.problemCategory.toLowerCase() == workerCategory.toLowerCase()).toList()
+              : list;
           // Sort locally to avoid requiring a composite Firestore index
-          list.sort((a, b) => b.assignedAt.compareTo(a.assignedAt));
-          return list;
+          filtered.sort((a, b) => b.assignedAt.compareTo(a.assignedAt));
+          return filtered;
         });
   }
 
@@ -210,11 +214,19 @@ class FirestoreService {
             .toList());
   }
 
-  Future<void> markAssignmentDone(String assignmentId, String notes) async {
+  Future<void> markAssignmentDone(String assignmentId, String notes, {String completionImageUrl = ''}) async {
     await _db.collection('assignments').doc(assignmentId).update({
       'status': AssignmentStatus.done.name,
       'workerNotes': notes,
+      'completionImageUrl': completionImageUrl,
       'completedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> updateProblemImage(String problemId, String newImageUrl) async {
+    await _db.collection('problems').doc(problemId).update({
+      'imageUrl': newImageUrl,
+      'lastUpdated': FieldValue.serverTimestamp(),
     });
   }
 

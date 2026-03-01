@@ -18,7 +18,10 @@ class WorkerProvider with ChangeNotifier {
 
   Stream<List<AssignmentModel>> get myAssignments {
     if (_workerModel == null) return const Stream.empty();
-    return _firestoreService.getAssignmentsForWorker(_workerModel!.workerId);
+    return _firestoreService.getAssignmentsForWorker(
+      _workerModel!.workerId,
+      workerCategory: _workerModel!.category.name,
+    );
   }
 
   Future<void> signIn(String email, String password) async {
@@ -75,11 +78,15 @@ class WorkerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> markAssignmentDone(String assignmentId, String notes) async {
+  Future<void> markAssignmentDone(String assignmentId, String notes, {String completionImageUrl = ''}) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _firestoreService.markAssignmentDone(assignmentId, notes);
+      await _firestoreService.markAssignmentDone(
+        assignmentId,
+        notes,
+        completionImageUrl: completionImageUrl,
+      );
       if (_workerModel != null) {
         await _firestoreService.incrementWorkerJobsDone(_workerModel!.workerId);
       }
