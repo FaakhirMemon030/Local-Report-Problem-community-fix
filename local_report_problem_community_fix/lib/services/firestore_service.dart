@@ -53,6 +53,18 @@ class FirestoreService {
 
   Future<void> voteProblem(String problemId, String userId) async {
     try {
+      // Check if user already voted
+      final existing = await _db
+          .collection('votes')
+          .where('problemId', isEqualTo: problemId)
+          .where('userId', isEqualTo: userId)
+          .limit(1)
+          .get();
+
+      if (existing.docs.isNotEmpty) {
+        throw Exception('already_voted');
+      }
+
       await _db.collection('votes').add({
         'problemId': problemId,
         'userId': userId,
@@ -68,6 +80,21 @@ class FirestoreService {
       rethrow;
     }
   }
+
+  Future<bool> hasUserVoted(String problemId, String userId) async {
+    try {
+      final snap = await _db
+          .collection('votes')
+          .where('problemId', isEqualTo: problemId)
+          .where('userId', isEqualTo: userId)
+          .limit(1)
+          .get();
+      return snap.docs.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
 
   Future<void> updateProblemStatus(String problemId, ProblemStatus status, String adminId) async {
     await _db.collection('problems').doc(problemId).update({
