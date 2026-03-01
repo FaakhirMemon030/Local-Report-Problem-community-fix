@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class StorageService {
-  static const String cloudName = "faakhirmemon"; 
+  static const String cloudName = "FaakhirMemon"; 
   static const String uploadPreset = "lrpcfa";
 
   /// Uploads image to Cloudinary using REST API (No CORS issues on Web)
