@@ -224,9 +224,39 @@ class _MapScreenState extends State<MapScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(Icons.thumb_up_alt_outlined, size: 18, color: Colors.blue),
-                const SizedBox(width: 6),
-                Text('${p.voteCount} Votes', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () async {
+                      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                      final problemProvider = Provider.of<ProblemProvider>(context, listen: false);
+                      if (authProvider.currentUserId != null) {
+                        try {
+                          await problemProvider.voteProblem(p.problemId, authProvider.currentUserId!);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Voted Successfully!'), duration: Duration(seconds: 1)),
+                            );
+                            Navigator.pop(context); // Close sheet to refresh view
+                          }
+                        } catch (e) {
+                          print("LPRCF: Map vote error: $e");
+                        }
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.thumb_up_alt_outlined, size: 20, color: Colors.blue),
+                          const SizedBox(width: 6),
+                          Text('${p.voteCount} Votes', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 const Spacer(),
                 const Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
                 const SizedBox(width: 4),
