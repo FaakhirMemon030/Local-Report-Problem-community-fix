@@ -6,6 +6,7 @@ class UserModel {
   final String email;
   final String role;
   final String city;
+  final String? profileImageUrl;
   final String? password; // Storing password as requested
   final int reputationScore;
   final int totalReports;
@@ -17,6 +18,7 @@ class UserModel {
     required this.email,
     required this.role,
     required this.city,
+    this.profileImageUrl,
     this.password,
     required this.reputationScore,
     required this.totalReports,
@@ -30,6 +32,7 @@ class UserModel {
       email: data['email'] ?? '',
       role: data['role'] ?? 'user',
       city: data['city'] ?? '',
+      profileImageUrl: data['profileImageUrl'],
       password: data['password'],
       reputationScore: data['reputationScore'] ?? 0,
       totalReports: data['totalReports'] ?? 0,
@@ -45,6 +48,7 @@ class UserModel {
       'email': email,
       'role': role,
       'city': city,
+      'profileImageUrl': profileImageUrl,
       'password': password,
       'reputationScore': reputationScore,
       'totalReports': totalReports,
@@ -55,6 +59,7 @@ class UserModel {
   UserModel copyWith({
     String? name,
     String? city,
+    String? profileImageUrl,
     String? password,
     int? reputationScore,
     int? totalReports,
@@ -65,6 +70,7 @@ class UserModel {
       email: email,
       role: role,
       city: city ?? this.city,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       password: password ?? this.password,
       reputationScore: reputationScore ?? this.reputationScore,
       totalReports: totalReports ?? this.totalReports,
