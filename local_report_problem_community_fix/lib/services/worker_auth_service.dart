@@ -29,6 +29,10 @@ class WorkerAuthService {
     required WorkerCategory category,
     required String city,
     required String address,
+    String cnicPicUrl = '',
+    String electricityBillUrl = '',
+    String gasBillUrl = '',
+    String profilePicUrl = '',
   }) async {
     final cred = await _auth.createUserWithEmailAndPassword(
       email: email,
@@ -44,6 +48,10 @@ class WorkerAuthService {
       category: category,
       city: city,
       address: address,
+      cnicPicUrl: cnicPicUrl,
+      electricityBillUrl: electricityBillUrl,
+      gasBillUrl: gasBillUrl,
+      profilePicUrl: profilePicUrl,
       status: WorkerStatus.pending,
       createdAt: DateTime.now(),
     );
